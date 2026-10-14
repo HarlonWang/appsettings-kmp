@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 
@@ -36,10 +37,17 @@ kotlin {
             api(libs.compose.ui)
             // Settings 出现在 rememberXxxState 的签名里
             api(libs.multiplatform.settings)
+            // ThemeStyle.paletteStyle 暴露 PaletteStyle，ColorSource.Fixed 接 ColorScheme
+            api(libs.material.kolor)
+            implementation(libs.androidx.graphics.shapes)
             implementation(libs.compose.components.resources)
             // 只要 core：materialIcon/materialPath 助手与 Refresh；其余图标内联在 icons 包
             implementation(libs.compose.icons.core)
             implementation(libs.kotlinx.serialization.json)
+        }
+        androidMain.dependencies {
+            // enableEdgeToEdge / SystemBarStyle：按深浅设置系统栏
+            implementation(libs.androidx.activity)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -341,11 +341,23 @@ class AppearanceState internal constructor() {
     /** 调色台实时落盘用；不入历史。 */
     fun applyCustom(color: CustomColor)
 
+    /** 整体写回某个快照，调色台「撤销修改」用。 */
+    fun restore(snapshot: Appearance)
+    /** 记一条自定义配置：相同组合提前而非重复，超出上限截断。 */
+    fun pushHistory(color: CustomColor)
+
     /** 深浅判断的唯一来源，FollowSystem 时读系统。 */
     @Composable fun isDark(): Boolean
     /** 平台是否支持壁纸取色。 */
     val supportsSystemDynamic: Boolean
+    /** 色板里要不要显示壁纸取色档（Seed 源 + 允许 + 平台支持）。 */
+    val showsSystemDynamic: Boolean
+    /** 上次调好的自定义色：正在用的自定义档，或历史里最近一条；null 表示从没调过。 */
+    val lastCustomColor: CustomColor?
 }
+
+/** ThemeMode / ThemeStyle / ThemeContrast 的展示文案（库内中英文兜底）。 */
+@Composable fun ThemeMode.label(): String
 
 @Composable
 fun rememberAppearanceState(
@@ -379,6 +391,8 @@ fun AppearanceTheme(
     typography: Typography = MaterialTheme.typography,
     shapes: Shapes = MaterialTheme.shapes,
     animate: Boolean = true,
+    /** Android 上按深浅设置系统栏前景（edge-to-edge），替代宿主 Activity 里那段 when；其他平台空操作。 */
+    syncSystemBars: Boolean = true,
     content: @Composable () -> Unit,
 )
 
@@ -386,10 +400,7 @@ fun AppearanceTheme(
 @Composable
 fun rememberAppearanceColorScheme(state: AppearanceState): ColorScheme
 
-// androidMain
-/** edge-to-edge 下按 isDark 设置状态栏 / 导航栏前景，替代宿主在 Activity 里重抄的那段 when。 */
-@Composable
-fun SystemBarsEffect(state: AppearanceState)
+// 系统栏：收进 AppearanceTheme 的 syncSystemBars，不再单独暴露
 ```
 
 ### 设置 UI
@@ -410,6 +421,8 @@ fun AppearanceContent(
 
 @Composable fun ThemeModePicker(state: AppearanceState, modifier: Modifier = Modifier)
 @Composable fun PalettePicker(state: AppearanceState, onOpenColorLab: () -> Unit, modifier: Modifier = Modifier)
+/** 节标题（图标 + 文字），宿主往 footer 里加自己的节时用它对齐。 */
+@Composable fun SectionHeader(icon: ImageVector, text: String, modifier: Modifier = Modifier)
 
 /**
  * 调色台会话：进入时拍快照，实时生效；[undo] 整体写回快照，[commit] 记一条历史并发 CustomApplied。
@@ -418,10 +431,15 @@ fun AppearanceContent(
 @Stable
 class ColorLabSession internal constructor() {
     val draft: CustomColor
-    fun setHue(hue: Float); fun setSaturation(s: Float); fun setValue(v: Float)
-    fun setArgb(argb: Long); fun setStyle(style: ThemeStyle); fun setContrast(contrast: ThemeContrast)
+    /** 单独记 HSV：饱和度或明度为 0 时色相会丢，从 draft 反推不回来。 */
+    val hsv: Hsv
+    val hexText: String; val hexError: Boolean
+    val history: List<CustomColor>
+    fun updateHsv(value: Hsv); fun setHue(hue: Float); fun setHexInput(raw: String)
+    fun setStyle(style: ThemeStyle); fun setContrast(contrast: ThemeContrast); fun pick(color: CustomColor)
     val isDirty: Boolean
     fun undo()
+    /** 幂等；rememberColorLabSession 在 dispose 时自动调，宿主一般不用手动调。 */
     fun commit()
 }
 

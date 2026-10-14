@@ -6,7 +6,7 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-> 状态：`ui`、`whatsnew`、`about` 包已落地（TrendingAI、Tono 已接入），其余包按 [docs/design.md §8](docs/design.md) 的顺序推进。本 README 的快速开始是 API 的试金石——写不短就说明 API 还要收。签名见 [docs/api.md](docs/api.md)，设计与决策见 [docs/design.md](docs/design.md)。
+> 状态：`ui`、`whatsnew`、`about` 包已落地（TrendingAI、Tono 已接入），`appearance` 包已实现、宿主接入中，其余包按 [docs/design.md §8](docs/design.md) 的顺序推进。本 README 的快速开始是 API 的试金石——写不短就说明 API 还要收。签名见 [docs/api.md](docs/api.md)，设计与决策见 [docs/design.md](docs/design.md)。
 
 ## 能力
 
@@ -41,7 +41,6 @@ fun Root() {
     )
 
     AppearanceTheme(appearance, typography = MyTypography) {
-        SystemBarsEffect(appearance)          // Android；iOS 不需要
         App()
         WhatsNewHost(whatsNew, language = currentLanguage)
     }
@@ -124,7 +123,7 @@ fun onSettingsEvent(e: AppSettingsEvent) = when (e) {
 | App 内打开隐私页 | `AboutContent(onLinkClick = { link -> if (link is AboutLink.Privacy) openWebView(link.url) else openBrowser(link.url) })` |
 | 动态图标 | `rememberAppIconState(options)` 传给 `AppearanceContent(icons = ...)`；manifest 里的 alias 写法与 Android Studio 的 Run 配置见 [docs/design.md §9](docs/design.md) |
 | 调色台 | `rememberColorLabSession(appearance)` + `ColorLabContent(session)`；`session.undo()` 接顶栏按钮，`session.commit()` 接离开页面 |
-| 只拿配色、主题自己写 | `rememberAppearanceColorScheme(appearance)` 与 `appearance.isDark()` |
+| 只拿配色、主题自己写 | `rememberAppearanceColorScheme(appearance)` 与 `appearance.isDark()`；系统栏由 `AppearanceTheme(syncSystemBars)` 管 |
 | 自家的设置行 | 直接用 `SettingsGroup { settingsItem(...) }`，与库内的行同一套规格 |
 
 ## 不在库里的东西

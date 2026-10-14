@@ -16,6 +16,8 @@ kotlin {
     dependencies {
         implementation(project(":library"))
         implementation(libs.compose.icons.core)
+        // sample 随便用图标；库本身只依赖 core
+        implementation(libs.compose.icons.extended)
         implementation(libs.androidx.activity.compose)
         implementation(libs.androidx.appcompat)
     }

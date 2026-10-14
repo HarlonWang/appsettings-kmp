@@ -21,9 +21,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.filled.Palette
+import wang.harlon.appsettings.appearance.AppearanceContent
+import wang.harlon.appsettings.appearance.AppearanceState
+import wang.harlon.appsettings.appearance.AppearanceTheme
+import wang.harlon.appsettings.appearance.ColorLabContent
+import wang.harlon.appsettings.appearance.LocalAppearanceState
+import wang.harlon.appsettings.appearance.label
+import wang.harlon.appsettings.appearance.rememberAppearanceState
+import wang.harlon.appsettings.appearance.rememberColorLabSession
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,7 +65,10 @@ class SettingsDemoActivity : ComponentActivity() {
         // 演示用：每次启动都伪装成「从 0.9.0 升上来」，让更新说明每次都弹。真实 App 不要碰这个 key。
         getSharedPreferences("demo", MODE_PRIVATE).edit().putString("appsettings.whatsnew.lastSeen", "0.9.0").apply()
         setContent {
-            MaterialTheme(colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()) {
+            val settings = remember { SharedPreferencesSettings(getSharedPreferences("demo", MODE_PRIVATE)) }
+            // 外观状态挂在根上：深浅、配色、动画与系统栏都由它管
+            val appearance = rememberAppearanceState(settings)
+            AppearanceTheme(appearance) {
                 DemoScreen()
             }
         }
@@ -74,9 +84,13 @@ private fun DemoScreen() {
     var showSheet by remember { mutableStateOf(false) }
     var showInfo by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
-    if (showAbout) {
-        AboutDemo(onBack = { showAbout = false })
-        return
+    var showAppearance by remember { mutableStateOf(false) }
+    var showColorLab by remember { mutableStateOf(false) }
+    val appearance = LocalAppearanceState.current
+    when {
+        showColorLab -> { ColorLabDemo(appearance, onBack = { showColorLab = false }); return }
+        showAppearance -> { AppearanceDemo(appearance, onBack = { showAppearance = false }, onOpenColorLab = { showColorLab = true }); return }
+        showAbout -> { AboutDemo(onBack = { showAbout = false }); return }
     }
 
     val context = LocalContext.current
@@ -91,6 +105,12 @@ private fun DemoScreen() {
                     title = "Group with controls",
                     modifier = Modifier.padding(horizontal = SettingsDefaults.ContentHorizontalPadding),
                 ) {
+                    settingsItem(
+                        icon = Icons.Default.Palette,
+                        title = { Text("Appearance") },
+                        trailing = { Text(appearance.appearance.mode.label(), color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                        onClick = { showAppearance = true },
+                    )
                     settingsItem(
                         icon = Icons.Default.Notifications,
                         title = { Text("Switch row") },
@@ -191,5 +211,41 @@ private fun AboutDemo(onBack: () -> Unit) {
                 item(icon = Icons.Default.Settings, title = { Text("Host-specific row") }, trailing = { Text("staging") }, onClick = {})
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AppearanceDemo(state: AppearanceState, onBack: () -> Unit, onOpenColorLab: () -> Unit) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Appearance") },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
+            )
+        },
+    ) { padding ->
+        AppearanceContent(state, modifier = Modifier.padding(padding), onOpenColorLab = onOpenColorLab)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ColorLabDemo(state: AppearanceState, onBack: () -> Unit) {
+    val session = rememberColorLabSession(state)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Custom Color") },
+                navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } },
+                actions = {
+                    IconButton(onClick = session::undo, enabled = session.isDirty) {
+                        Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = "Discard changes")
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        ColorLabContent(session, modifier = Modifier.padding(padding))
     }
 }
