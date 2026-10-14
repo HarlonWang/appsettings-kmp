@@ -188,7 +188,7 @@ sealed interface UpdateStatus {
 
 /**
  * 关于页整页内容，自带滚动。头部为应用名 + 版本号 + 可选图标；[onVersionClick] 给隐藏开发者入口计数用，计数在宿主。
- * [onLinkClick] 默认用 LocalUriHandler 打开，即系统浏览器。
+ * 内置链接的图标内联自 material-icons-extended（Apache 2.0），库只依赖 icons-core。
  */
 @Composable
 fun AboutContent(
@@ -197,7 +197,8 @@ fun AboutContent(
     modifier: Modifier = Modifier,
     icon: (@Composable () -> Unit)? = null,
     onVersionClick: (() -> Unit)? = null,
-    onLinkClick: (AboutLink) -> Unit = AboutDefaults.openInBrowser(),
+    /** null 时用 LocalUriHandler 打开，即系统浏览器（默认参数里拿不到 CompositionLocal，所以用可空而不是默认值）。 */
+    onLinkClick: ((AboutLink) -> Unit)? = null,
     content: AboutScope.() -> Unit,
 )
 

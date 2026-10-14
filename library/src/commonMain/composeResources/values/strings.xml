@@ -2,4 +2,14 @@
     <string name="appsettings_ok">OK</string>
     <string name="appsettings_whats_new_title">🎉 What&apos;s New in %1$s</string>
     <string name="appsettings_whats_new_got_it">Got it</string>
+    <string name="appsettings_about_privacy">Privacy Policy</string>
+    <string name="appsettings_about_terms">Terms of Service</string>
+    <string name="appsettings_about_website">Official Website</string>
+    <string name="appsettings_about_changelog">Changelog</string>
+    <string name="appsettings_about_feedback">Feedback</string>
+    <string name="appsettings_about_licenses">Open Source Licenses</string>
+    <string name="appsettings_about_check_updates">Check for updates</string>
+    <string name="appsettings_about_up_to_date">Up to date</string>
+    <string name="appsettings_about_check_failed">Check failed, try again later</string>
+    <string name="appsettings_about_update_available">New version %1$s</string>
 </resources>

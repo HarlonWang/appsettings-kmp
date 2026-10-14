@@ -6,7 +6,7 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-> 状态：`ui`、`whatsnew` 包已落地（TrendingAI、Tono 已接入），其余包按 [docs/design.md §8](docs/design.md) 的顺序推进。本 README 的快速开始是 API 的试金石——写不短就说明 API 还要收。签名见 [docs/api.md](docs/api.md)，设计与决策见 [docs/design.md](docs/design.md)。
+> 状态：`ui`、`whatsnew`、`about` 包已落地（TrendingAI、Tono 已接入），其余包按 [docs/design.md §8](docs/design.md) 的顺序推进。本 README 的快速开始是 API 的试金石——写不短就说明 API 还要收。签名见 [docs/api.md](docs/api.md)，设计与决策见 [docs/design.md](docs/design.md)。
 
 ## 能力
 
@@ -137,4 +137,4 @@ fun onSettingsEvent(e: AppSettingsEvent) = when (e) {
 
 ## 许可
 
-MIT。
+MIT。`library/src/commonMain/kotlin/wang/harlon/appsettings/icons/` 下的少数图标取自 material-icons-extended（Apache License 2.0），文件头保留原版权声明。

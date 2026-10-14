@@ -31,6 +31,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.IconButton
+import wang.harlon.appsettings.about.AboutContent
+import wang.harlon.appsettings.about.AboutLink
+import wang.harlon.appsettings.about.UpdateStatus
 import wang.harlon.appsettings.ui.InfoDialog
 import wang.harlon.appsettings.ui.SettingsBottomSheet
 import wang.harlon.appsettings.ui.SettingsDefaults
@@ -68,6 +73,11 @@ private fun DemoScreen() {
     var choice by remember { mutableStateOf("A") }
     var showSheet by remember { mutableStateOf(false) }
     var showInfo by remember { mutableStateOf(false) }
+    var showAbout by remember { mutableStateOf(false) }
+    if (showAbout) {
+        AboutDemo(onBack = { showAbout = false })
+        return
+    }
 
     val context = LocalContext.current
     val settings = remember { SharedPreferencesSettings(context.getSharedPreferences("demo", 0)) }
@@ -116,6 +126,7 @@ private fun DemoScreen() {
                     modifier = Modifier.padding(horizontal = SettingsDefaults.ContentHorizontalPadding),
                 ) {
                     settingsItem(icon = Icons.Default.Info, title = { Text("Info dialog") }, onClick = { showInfo = true })
+                    settingsItem(icon = Icons.Default.Info, title = { Text("About page") }, onClick = { showAbout = true })
                     settingsItem(icon = Icons.Default.Info, title = { Text("Disabled row") }, enabled = false, onClick = {})
                     settingsItem(title = { Text("No icon, not clickable") }, description = { Text("Carries no button semantics") })
                 }
@@ -134,5 +145,51 @@ private fun DemoScreen() {
     }
     if (showInfo) {
         InfoDialog(title = "About this row", content = "A plain explanation with a single dismiss action.", onDismiss = { showInfo = false })
+    }
+}
+
+/** 关于页：内置链接 + 检查更新行（状态轮转）+ 自定义行。 */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AboutDemo(onBack: () -> Unit) {
+    var status by remember { mutableStateOf<UpdateStatus>(UpdateStatus.Idle) }
+    var taps by remember { mutableStateOf(0) }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("About") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
+                },
+            )
+        },
+    ) { padding ->
+        AboutContent(
+            name = "AppSettings Demo",
+            version = if (taps >= 7) "$DEMO_VERSION (developer)" else DEMO_VERSION,
+            modifier = Modifier.padding(padding),
+            onVersionClick = { taps++ },
+        ) {
+            group {
+                updateCheck(status) {
+                    status = when (status) {
+                        UpdateStatus.Idle -> UpdateStatus.Checking
+                        UpdateStatus.Checking -> UpdateStatus.UpToDate
+                        UpdateStatus.UpToDate -> UpdateStatus.Failed
+                        UpdateStatus.Failed -> UpdateStatus.Available("2.0.0")
+                        is UpdateStatus.Available -> UpdateStatus.Idle
+                    }
+                }
+                link(AboutLink.Changelog("https://example.com/changelog"))
+                link(AboutLink.Website("https://example.com"))
+                link(AboutLink.Privacy("https://example.com/privacy"))
+                link(AboutLink.Terms("https://example.com/terms"))
+                link(AboutLink.Feedback("https://example.com/feedback"))
+                link(AboutLink.Licenses("https://example.com/licenses"))
+            }
+            group(title = "Custom") {
+                item(icon = Icons.Default.Settings, title = { Text("Host-specific row") }, trailing = { Text("staging") }, onClick = {})
+            }
+        }
     }
 }

@@ -37,6 +37,8 @@ kotlin {
             // Settings 出现在 rememberXxxState 的签名里
             api(libs.multiplatform.settings)
             implementation(libs.compose.components.resources)
+            // 只要 core：materialIcon/materialPath 助手与 Refresh；其余图标内联在 icons 包
+            implementation(libs.compose.icons.core)
             implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
