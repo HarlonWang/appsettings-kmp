@@ -76,7 +76,7 @@ appsettings-kmp/
    唯一例外是 about：没有可变状态，只有 `onLinkClick` 这一个出口。
 2. **存储：宿主传 `Settings` 实例，库只认命名空间。** 库不自己建实例。每个包的 key 都在 `appsettings.<包名>.` 下；多字段状态存一个带 `schemaVersion` 的 JSON key，单值直接存。
    **不提供任何旧数据兼容或迁移入口**：从旧实现迁过来的 App 接受一次性退化（外观重置一次、更新说明少弹一回）。
-3. **事件：一个 sealed 树，记落定后的结果。** 根是 `AppSettingsEvent`，每个包一棵子树。宿主用一个函数映射到自己的埋点词汇表，库零埋点依赖。
+3. **事件：一个事件根、每包一棵 sealed 子树，记落定后的结果。** 根 `AppSettingsEvent` 是普通接口（Kotlin 的 sealed 子类必须同包），`WhatsNewEvent`、`AppearanceEvent` 各自 sealed。宿主用一个函数映射到自己的埋点词汇表，库零埋点依赖。
    事件记的是落定状态（例如权限被拒后的 false），不是用户意图。
 4. **只给内容，不给页面。** 每个包导出 `XxxContent(state, modifier)` 与更细的件；不带 Scaffold、顶栏、返回键、导航。
    `*Content` 是整页内容，自带滚动；更细的件不滚动。页面间跳转是回调。

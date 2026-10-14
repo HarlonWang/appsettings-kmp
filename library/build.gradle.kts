@@ -34,11 +34,15 @@ kotlin {
             api(libs.compose.foundation)
             api(libs.compose.material3)
             api(libs.compose.ui)
+            // Settings 出现在 rememberXxxState 的签名里
+            api(libs.multiplatform.settings)
             implementation(libs.compose.components.resources)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.multiplatform.settings.test)
         }
         getByName("androidHostTest").dependencies {
             implementation(libs.kotlin.test)

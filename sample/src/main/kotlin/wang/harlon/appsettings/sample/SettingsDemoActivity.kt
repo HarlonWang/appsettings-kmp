@@ -36,12 +36,22 @@ import wang.harlon.appsettings.ui.SettingsBottomSheet
 import wang.harlon.appsettings.ui.SettingsDefaults
 import wang.harlon.appsettings.ui.SettingsDropdownMenu
 import wang.harlon.appsettings.ui.SettingsGroup
+import wang.harlon.appsettings.whatsnew.WhatsNewHost
+import wang.harlon.appsettings.whatsnew.rememberWhatsNewState
+import androidx.compose.ui.platform.LocalContext
+import com.russhwolf.settings.SharedPreferencesSettings
+import java.util.Locale
 
-/** 把 ui 包的四个基元各摆一遍：卡片组、开关行、下拉行、浮层行、说明弹窗。 */
+private const val DEMO_VERSION = "1.0.0"
+private const val DEMO_WHATS_NEW = """{"version":"1.0.0","zh":["演示：升级后首启弹一次"],"en":["Demo: shown once after an upgrade"]}"""
+
+/** 把 ui 包的四个基元各摆一遍：卡片组、开关行、下拉行、浮层行、说明弹窗；根上挂一次更新说明。 */
 class SettingsDemoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // 演示用：每次启动都伪装成「从 0.9.0 升上来」，让更新说明每次都弹。真实 App 不要碰这个 key。
+        getSharedPreferences("demo", MODE_PRIVATE).edit().putString("appsettings.whatsnew.lastSeen", "0.9.0").apply()
         setContent {
             MaterialTheme(colorScheme = if (isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()) {
                 DemoScreen()
@@ -58,6 +68,11 @@ private fun DemoScreen() {
     var choice by remember { mutableStateOf("A") }
     var showSheet by remember { mutableStateOf(false) }
     var showInfo by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
+    val settings = remember { SharedPreferencesSettings(context.getSharedPreferences("demo", 0)) }
+    val whatsNew = rememberWhatsNewState(settings, currentVersion = DEMO_VERSION, load = { DEMO_WHATS_NEW })
+    WhatsNewHost(whatsNew, language = Locale.getDefault().language)
 
     Scaffold(topBar = { TopAppBar(title = { Text("AppSettings Demo") }) }) { padding ->
         LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {

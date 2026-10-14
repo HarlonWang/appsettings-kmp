@@ -8,8 +8,11 @@
 ```kotlin
 package wang.harlon.appsettings
 
-/** 所有包的事件根。宿主写一个 `when` 映射到自己的埋点词汇表。 */
-sealed interface AppSettingsEvent
+/**
+ * 所有包的事件根。宿主写一个 `when` 映射到自己的埋点词汇表。
+ * 普通接口而非 sealed（Kotlin 要求 sealed 子类同包），各包的子树各自 sealed：按根 `when` 加 `else`，按子树 `when` 可穷尽。
+ */
+interface AppSettingsEvent
 ```
 
 ## ui
@@ -135,6 +138,9 @@ fun rememberWhatsNewState(
     load: suspend () -> String?,
     onEvent: (WhatsNewEvent) -> Unit = {},
 ): WhatsNewState
+
+/** 同步判断本次启动是否待弹（lastSeen != current 近似，不读 JSON），供宿主在同一次启动里避开双弹窗。 */
+fun isWhatsNewPending(settings: Settings, currentVersion: String): Boolean
 
 /** 挂在根上：有 pending 就弹。[language] 由宿主给（界面语言或系统语言）。 */
 @Composable
