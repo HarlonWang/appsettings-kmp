@@ -6,7 +6,7 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-> 状态：`ui`、`whatsnew`、`about` 包已落地（TrendingAI、Tono 已接入），`appearance` 包已实现、宿主接入中，其余包按 [docs/design.md §8](docs/design.md) 的顺序推进。本 README 的快速开始是 API 的试金石——写不短就说明 API 还要收。签名见 [docs/api.md](docs/api.md)，设计与决策见 [docs/design.md](docs/design.md)。
+> 状态：`ui`、`whatsnew`、`about`、`appearance` 四个包已落地，TrendingAI、Tono 已接入；尚未发 Maven Central，宿主经 composite build 吃源码。`update`、`language` 放 v1.x，其余包按 [docs/design.md §8](docs/design.md) 的顺序推进。本 README 的快速开始是 API 的试金石——写不短就说明 API 还要收。签名见 [docs/api.md](docs/api.md)，设计与决策见 [docs/design.md](docs/design.md)。
 
 ## 能力
 
