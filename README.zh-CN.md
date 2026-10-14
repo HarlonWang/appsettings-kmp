@@ -6,7 +6,7 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-> 状态：设计阶段。本 README 的快速开始是 API 的试金石——写不短就说明 API 还要收。签名见 [docs/api.md](docs/api.md)，设计与决策见 [docs/design.md](docs/design.md)。
+> 状态：`ui` 包已落地（TrendingAI 已接入），其余包按 [docs/design.md §8](docs/design.md) 的顺序推进。本 README 的快速开始是 API 的试金石——写不短就说明 API 还要收。签名见 [docs/api.md](docs/api.md)，设计与决策见 [docs/design.md](docs/design.md)。
 
 ## 能力
 
