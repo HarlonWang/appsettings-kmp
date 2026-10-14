@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -66,7 +65,7 @@ fun SettingsGroup(
         }
         Column(verticalArrangement = Arrangement.spacedBy(SettingsDefaults.ItemGap)) {
             entries.forEachIndexed { index, entry ->
-                entry(groupItemShape(index, entries.size))
+                entry(SettingsDefaults.groupItemShape(index, entries.size))
             }
         }
     }
@@ -199,11 +198,4 @@ private fun SettingsItemRow(
             }
         }
     }
-}
-
-/** 首项顶部大圆角、末项底部大圆角、中间一律小圆角；只有一项时四角全大。 */
-internal fun groupItemShape(index: Int, count: Int): Shape {
-    val top = if (index == 0) SettingsDefaults.LargeCorner else SettingsDefaults.SmallCorner
-    val bottom = if (index == count - 1) SettingsDefaults.LargeCorner else SettingsDefaults.SmallCorner
-    return RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom)
 }

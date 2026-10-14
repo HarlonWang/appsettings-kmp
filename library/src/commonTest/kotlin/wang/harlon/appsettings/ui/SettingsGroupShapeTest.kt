@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 class SettingsGroupShapeTest {
 
     private fun corners(index: Int, count: Int): List<Any> {
-        val s = groupItemShape(index, count) as RoundedCornerShape
+        val s = SettingsDefaults.groupItemShape(index, count) as RoundedCornerShape
         return listOf(s.topStart, s.topEnd, s.bottomStart, s.bottomEnd)
     }
 

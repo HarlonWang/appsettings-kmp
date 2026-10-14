@@ -1,5 +1,7 @@
 package wang.harlon.appsettings.ui
 
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 /**
@@ -28,4 +30,14 @@ object SettingsDefaults {
 
     /** 禁用态前景 alpha。 */
     const val DisabledAlpha = 0.38f
+
+    /**
+     * 连体卡片组里第 [index] 项（共 [count] 项）的形状：首项顶部大圆角、末项底部大圆角、中间一律小圆角；只有一项时四角全大。
+     * 自己画行（如 chatbase-kmp 的模型列表）但想和 [SettingsGroup] 同一套圆角语言时用它。
+     */
+    fun groupItemShape(index: Int, count: Int): Shape {
+        val top = if (index == 0) LargeCorner else SmallCorner
+        val bottom = if (index == count - 1) LargeCorner else SmallCorner
+        return RoundedCornerShape(topStart = top, topEnd = top, bottomStart = bottom, bottomEnd = bottom)
+    }
 }
