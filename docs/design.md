@@ -19,6 +19,7 @@ Compose Multiplatform（Android / iOS）库，坐标 `wang.harlon:appsettings-km
 | 之前 | 外观不拆 core / ui 两个 artifact | 同上一条「一个 artifact」 |
 | 之前 | 壁纸取色（`SystemDynamic`）进 v1 | 通用外观库最常被问的能力 |
 | 之前 | TrendingAI 的外观旧存储不做兼容 | 库不该为第一个用户背历史包袱；接受老用户升级后主题重置一次 |
+| 2026-10-14 | 更新说明同样不做兼容，库里不留任何迁移入口 | 代价只是老用户升级那一次少弹一回 |
 | 之前 | 动态图标进库，作为 appearance 下的独立能力 | 因 App 而异的只有 alias 声明与图标资源；切换机制、真实状态读取、iOS 备用图标、选择 UI 都通用，且坑多值得封装 |
 | 之前 | 图标与主题色不联动 | Android 切图标有副作用（快捷方式失效、少数机型杀进程），跟着主题色自动切会让用户频繁遇到 |
 
@@ -74,7 +75,7 @@ appsettings-kmp/
 1. **三件套：`Options` 进、`State` 出、`Event` 回。** `Options` 收所有因 App 而异的静态差异；`State` 由 `rememberXxxState(settings, options, onEvent)` 创建、挂事件出口；composable 只吃 `State`。
    唯一例外是 about：没有可变状态，只有 `onLinkClick` 这一个出口。
 2. **存储：宿主传 `Settings` 实例，库只认命名空间。** 库不自己建实例。每个包的 key 都在 `appsettings.<包名>.` 下；多字段状态存一个带 `schemaVersion` 的 JSON key，单值直接存。
-   旧数据迁移是宿主的事：库只提供 `seed*` 一类的一次性注入口。
+   **不提供任何旧数据兼容或迁移入口**：从旧实现迁过来的 App 接受一次性退化（外观重置一次、更新说明少弹一回）。
 3. **事件：一个 sealed 树，记落定后的结果。** 根是 `AppSettingsEvent`，每个包一棵子树。宿主用一个函数映射到自己的埋点词汇表，库零埋点依赖。
    事件记的是落定状态（例如权限被拒后的 false），不是用户意图。
 4. **只给内容，不给页面。** 每个包导出 `XxxContent(state, modifier)` 与更细的件；不带 Scaffold、顶栏、返回键、导航。

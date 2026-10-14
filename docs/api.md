@@ -125,15 +125,14 @@ class WhatsNewState internal constructor() {
 
 /**
  * 首装静默记录当前版本不弹；升级后首启且 bundled 版本匹配才弹；不满足条件直接标记已看，避免一直 pending。
+ * 不读宿主的旧 key：从旧实现迁过来的 App，老用户升级那一次按首装处理、少弹一回，已接受。
  * @param load 读取随包的 JSON 文本，宿主通常是 `Res.readBytes("files/whatsnew.json").decodeToString()`
- * @param seedLastSeen 仅第一次运行时调用：从宿主旧 key 读一次，避免老用户升级那次少弹
  */
 @Composable
 fun rememberWhatsNewState(
     settings: Settings,
     currentVersion: String,
     load: suspend () -> String?,
-    seedLastSeen: (() -> String?)? = null,
     onEvent: (WhatsNewEvent) -> Unit = {},
 ): WhatsNewState
 
