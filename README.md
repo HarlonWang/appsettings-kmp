@@ -6,7 +6,7 @@ English | [简体中文](README.zh-CN.md)
 
 [![Maven Central](https://img.shields.io/maven-central/v/wang.harlon/appsettings-kmp)](https://central.sonatype.com/artifact/wang.harlon/appsettings-kmp) [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-## Three-minute setup
+## Quick start
 
 **1. Add the dependency.**
 

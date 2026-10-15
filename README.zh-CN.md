@@ -6,7 +6,7 @@
 
 [![Maven Central](https://img.shields.io/maven-central/v/wang.harlon/appsettings-kmp)](https://central.sonatype.com/artifact/wang.harlon/appsettings-kmp) [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-## 3 分钟接入
+## 快速开始
 
 **1. 加依赖。**
 
