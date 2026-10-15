@@ -17,7 +17,6 @@ import wang.harlon.appsettings.resources.appsettings_theme_color_peacock
 import wang.harlon.appsettings.resources.appsettings_theme_color_pine
 import wang.harlon.appsettings.resources.appsettings_theme_color_plum
 import wang.harlon.appsettings.resources.appsettings_theme_color_rust
-import wang.harlon.appsettings.resources.appsettings_theme_color_slate
 import wang.harlon.appsettings.resources.appsettings_theme_color_steel
 
 /** 默认预设的 seed（M3 基线紫）。 */
@@ -40,8 +39,9 @@ private fun preset(id: String, label: StringResource, argb: Long, style: ThemeSt
     ThemePreset(id = id, argb = argb, style = style, label = { stringResource(label) })
 
 /**
- * 内置的 14 色预设：11 个彩色沿色相环连续递增 + 3 档中性收尾，加自定义档正好 5×3 满排。
- * 彩度 / 明度全部归一、只有色相在变，色板才读成一条连续色带。**id 是稳定契约，色值可以调。**
+ * 内置的 13 色预设：11 个彩色沿色相环连续递增 + 2 档中性收尾（棕、石墨），加壁纸取色与自定义正好 5×3 满排
+ *（不支持壁纸取色的平台少一颗）。彩度 / 明度全部归一、只有色相在变，色板才读成一条连续色带。
+ * 曾有第三个中性档「蓝灰」（色相 230、低彩度），与钢蓝同色相、蓝系又已有三档，为凑满排去掉了。**id 是稳定契约，色值可以调。**
  */
 val DefaultPalette: List<ThemePreset> = listOf(
     preset("default", Res.string.appsettings_theme_color_default, DefaultSeedArgb),
@@ -55,8 +55,7 @@ val DefaultPalette: List<ThemePreset> = listOf(
     preset("peacock", Res.string.appsettings_theme_color_peacock, seed(hue(8))),
     preset("steel", Res.string.appsettings_theme_color_steel, seed(hue(9))),
     preset("indigo", Res.string.appsettings_theme_color_indigo, seed(hue(10))),
-    // 中性三档：同一 tone、靠低彩度与彩色档拉开；石墨再压暗一档做纯黑锚点
+    // 中性两档：同一 tone、靠低彩度与彩色档拉开；石墨再压暗一档做纯黑锚点
     preset("brown", Res.string.appsettings_theme_color_brown, seed(40.0, chroma = 16.0), ThemeStyle.Muted),
-    preset("slate", Res.string.appsettings_theme_color_slate, seed(230.0, chroma = 14.0), ThemeStyle.Muted),
     preset("graphite", Res.string.appsettings_theme_color_graphite, seed(280.0, chroma = 2.0, tone = 30.0), ThemeStyle.Mono),
 )

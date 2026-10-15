@@ -41,7 +41,7 @@ is ColorLab   -> ColorLabScreen(onBack = { nav.pop() })
 is About      -> AboutScreen(onBack = { nav.pop() })
 ```
 
-到这里结束。用户已经有了深浅 / 纯黑模式、14 色预设、调色台、壁纸取色、关于页，升级后首启会弹更新说明。
+到这里结束。用户已经有了深浅 / 纯黑模式、13 色预设、调色台、壁纸取色、关于页，升级后首启会弹更新说明。
 
 ## 宿主要提供什么
 

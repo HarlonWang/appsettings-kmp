@@ -31,7 +31,6 @@
     <string name="appsettings_theme_color_steel">Steel</string>
     <string name="appsettings_theme_color_indigo">Indigo</string>
     <string name="appsettings_theme_color_brown">Brown</string>
-    <string name="appsettings_theme_color_slate">Slate</string>
     <string name="appsettings_theme_color_graphite">Graphite</string>
     <string name="appsettings_theme_color_custom">Custom</string>
     <string name="appsettings_theme_color_system">Wallpaper</string>

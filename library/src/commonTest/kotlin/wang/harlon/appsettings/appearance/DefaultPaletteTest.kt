@@ -7,8 +7,8 @@ import kotlin.test.assertTrue
 class DefaultPaletteTest {
 
     @Test
-    fun palette_has_fourteen_unique_opaque_seeds() {
-        assertEquals(14, DefaultPalette.size)
+    fun palette_has_thirteen_unique_opaque_seeds() {
+        assertEquals(13, DefaultPalette.size)
         assertEquals(DefaultPalette.size, DefaultPalette.map { it.id }.toSet().size, "duplicate id")
         assertEquals(DefaultPalette.size, DefaultPalette.map { it.argb }.toSet().size, "duplicate argb")
         DefaultPalette.forEach { assertEquals(0xFFL, (it.argb shr 24) and 0xFFL, "${it.id} not opaque") }
@@ -24,7 +24,7 @@ class DefaultPaletteTest {
     fun stable_ids_are_unchanged() {
         // id 是稳定契约：改了等于让已选它的用户掉到默认
         assertEquals(
-            listOf("default", "plum", "berry", "rust", "mustard", "olive", "forest", "pine", "peacock", "steel", "indigo", "brown", "slate", "graphite"),
+            listOf("default", "plum", "berry", "rust", "mustard", "olive", "forest", "pine", "peacock", "steel", "indigo", "brown", "graphite"),
             DefaultPalette.map { it.id },
         )
         assertTrue(AppearanceOptions().defaultColor == ColorChoice.Preset("default"))

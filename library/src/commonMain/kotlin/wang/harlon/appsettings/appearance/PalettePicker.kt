@@ -49,7 +49,7 @@ import wang.harlon.appsettings.resources.appsettings_theme_color_system
 
 /**
  * 配色色板：预设 + 壁纸取色（平台支持且允许时）+ 自定义档（允许时，同时是调色台入口）。
- * 每行 5 列等宽：内置 14 个预设 + 自定义正好 5×3 满排。只在 [ColorSource.Seed] 下有意义。
+ * 每行 5 列等宽：内置 13 个预设 + 壁纸取色 + 自定义正好 5×3 满排。只在 [ColorSource.Seed] 下有意义。
  *
  * @param onOpenColorLab 点自定义档：已调过色就先把它应用上，再进调色台——点击只有一种结果，
  * 不做「选中态下再点才是编辑」那种要靠猜的二段交互
