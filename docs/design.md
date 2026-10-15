@@ -184,9 +184,9 @@ language {
 
 落地顺序：
 
-1. ~~`language` 包 + 测试，`languageItem()`，Android appcompat 依赖与 Activity 校验，README 加「界面语言」一节~~ 已完成，待发 `0.2.0`。
-2. TrendingAI 接 `language { }`，删 `AppLanguage` 枚举、`MainActivity` 的 locale collect、设置页语言行；`whatsNew.language` 一行去掉。
-3. 更新 `docs/api.md` 的稳定契约（`LanguageEvent` 子类集合、新 key）与 brain atlas 的能力描述。
+1. ~~`language` 包 + 测试，`languageItem()`，Android appcompat 依赖与 Activity 校验，README 加「界面语言」一节~~ 已发 `0.2.0`；`0.2.1` 补公开 `APP_LANGUAGE_STORAGE_KEY` 与 `AppLanguage.fromStorage / resolve`，宿主非 Compose 场景不再硬编码 key。
+2. ~~TrendingAI 接 `language { }`，删 `AppLanguage` 枚举、`MainActivity` 的 locale collect、设置页语言行；`whatsNew.language` 一行去掉~~ 已合并（TrendingAI #156），Android 13+ 模拟器验证了行内切换、系统设置改语言被采纳、改回跟随系统不回放三条；iOS 未验。
+3. ~~更新 `docs/api.md` 的稳定契约与 brain atlas 的能力描述~~ 已完成。
 
 ### 11.2 `update`：强更门，按需
 
