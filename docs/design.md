@@ -19,7 +19,7 @@ Compose Multiplatform（Android / iOS）库，坐标 `wang.harlon:appsettings-km
 | 2026-10-15 | **接入面 v2**：对外一个配置对象 `rememberAppSettings { }` + 一个 `AppSettingsRoot` + 整页屏；状态对象、`*Content`、Options、Session 全部 internal | 第一版要宿主认识十来个概念、Tono 接三项能力写了 150 行；新接入方照 README 不知道从哪进 |
 | 2026-10-15 | 设置页框架进库（壳、滚动、通用行），编排仍在宿主；二级页导航归宿主，库只发 `onOpen(page)` | 两个 App 的业务行都多，但骨架与通用行一样；库内导航会和宿主的返回、`screen_viewed`、状态恢复打架 |
 | 2026-10-15 | 不做 `*Content` 孪生体，也不做壳槽位；顶栏颜色一个配置项，默认 M3 | TrendingAI 的「换壳」拆开看只是顶栏颜色恒定 `surfaceContainer`，`TrendingScaffold` 其余接线在 pinned + 恒定色下无可见效果；库默认跟平台，house style 放配置 |
-| 2026-10-15 | v1.x 先做 `update` 再做 `language`，各发一个 minor；强更门与更新说明的让路、界面语言与更新说明语言的联动都收进库 | Tono 的 app-config 已带 `min_version` 只是没消费，强更门有两个用户；两处联动是库内两个包的关系，v1 让 TrendingAI 在根上写了 8 行只为接这两条线。详见第 11 节 |
+| 2026-10-15 | v1.x 只做 `language`；`update`（强更门）降为按需，TrendingAI 自己那份保留 | 强更门上线至今零次下发，Tono 的 `min_version` 字段也没被消费；它是保险而非功能，进库只省 TrendingAI 根上 6 行让路代码，不值一次发版加两个宿主 bump。触发条件见 11.2 |
 | 之前 | 外观不拆 core / ui 两个 artifact | 同上一条「一个 artifact」 |
 | 之前 | 壁纸取色（`SystemDynamic`）进 v1 | 通用外观库最常被问的能力 |
 | 之前 | TrendingAI 的外观旧存储不做兼容 | 库不该为第一个用户背历史包袱；接受老用户升级后主题重置一次 |
@@ -146,42 +146,11 @@ appsettings-kmp/
 顺带的结论（不阻塞本库）：TrendingAI 的 `TrendingScaffold` 规则把「顶栏颜色恒定 `surfaceContainer`」编码成了页面骨架，
 其 nestedScroll / CompositionLocal 接线在 pinned + 恒定色下无可见效果；更合适的形态是只保留 `TrendingTopAppBar` 的颜色默认值、删掉 scaffold 包装。
 
-## 11. v1.x 规划：`update` 与 `language`（2026-10-15）
+## 11. v1.x 规划：`language` 做，`update` 按需（2026-10-15）
 
-两包都是增量，不动已有稳定契约，各发一个 minor：`0.2.0` 出 `update`，`0.3.0` 出 `language`。先做 `update`：Tono 的 `AppConfigResponse` 已经带 `min_version` 但客户端没消费，是现成的第二个用户；`language` 只有 TrendingAI 用，且 Android 侧要多一个 appcompat 依赖。
+`language` 发 `0.2.0`，增量，不动已有稳定契约。源实现在 TrendingAI：`data/local/SettingsManager.kt` 的 `AppLanguage`、`MainActivity` 的 `setApplicationLocales`、`SettingsScreen` 的语言行；搬完删掉。
 
-源实现都在 TrendingAI：`update/MinVersion.kt`（含测试）、`ui/common/ForceUpdateGate.kt`、`data/local/SettingsManager.kt` 的 `AppLanguage`、`MainActivity` 的 `setApplicationLocales`、`SettingsScreen` 的语言行。搬完两边各删一份。
-
-### 11.1 `update`：强更门
-
-**进库**：版本比较、整屏强更门、`minVersion` 缓存与首帧同步判定、与更新说明的让路联动、事件。
-**不进库**：`minVersion` 从哪来、怎么拉、其他 app-config 字段的落地。
-
-| 决定 | 理由 |
-|---|---|
-| 宿主只给一个 `suspend () -> String?`，库冷启动调一次 | TrendingAI 的 `refreshAppConfig` 顺带落地五六个字段，这些仍在宿主；lambda 里宿主做完自己的事把 `minVersion` 返回即可。返回 null 或抛异常都不改缓存（fail-open） |
-| 缓存写 `appsettings.update.minVersion`，初值同步读缓存判定 | 强更一旦下发，离线重启也拦得住；首帧不闪。沿用 v1 的「初值必须同步可读」约束 |
-| 门在 `AppSettingsRoot` 里、`content()` 外层 | 宿主不再自己包 `ForceUpdateGate`；整屏替换无 dismiss 语义，不能绕过 |
-| 门亮着时库内自动压住更新说明 | v1 让 TrendingAI 写 `enabled = { !forceUpdateBlocked }` 外加一个同步初值的 `remember`，共 6 行只为避免双弹窗；这是库里两个包的关系，库自己管。`whatsNew.enabled` 保留给别的全屏（登录浮层等） |
-| 版本比较只比 `-` / `+` 前的数值段，任一侧解析失败不拦 | 原样搬 TrendingAI 的规则：git describe 构建与 prerelease 都按数值段比；兜底版本号或服务端误配不能把用户锁死 |
-| 按钮默认 `openUrl(storeUrl)`，可换 `onUpdateClick` | iOS 跳 App Store 页、Android apk 渠道跳官网、play 渠道跳商店，都是一个 url 的事；要自建下载器的给回调 |
-| 文案三段可覆盖，库内中英兜底 | 同 v1 契约 5 |
-
-配置形状：
-
-```kotlin
-update {
-    minVersion = { api.fetchAppConfig()?.also { cacheMyOtherFields(it) }?.minVersion }
-    storeUrl = OFFICIAL_WEBSITE_URL        // 或 onUpdateClick = { … }
-    // title / message / button: (@Composable () -> String)? 可覆盖
-}
-```
-
-事件 `UpdateEvent.ForceUpdateShown(current, min)`、`ForceUpdateClicked`，记落定结果。存储 key `appsettings.update.minVersion`，单值 string。
-
-测试归库：版本比较全部用例（从 `MinVersionTest` 搬）、「缓存有值时首帧即阻断」、「拉取失败不改缓存」、「门亮着时 `isWhatsNewPending` 为 true 但不弹、门灭后补弹」。
-
-### 11.2 `language`：界面语言
+### 11.1 `language`：界面语言
 
 **进库**：语言模型、存储、Android 的 per-app locale 应用、设置页一行、「跟随系统」解析、事件。
 **不进库**：可选语言清单（宿主的 compose resources 支持哪些语言只有宿主知道）、摘要语言这类业务语言。
@@ -211,10 +180,22 @@ language {
 
 测试归库：`resolved()` 的钳制与回落、清单外旧值视为跟随系统、`languages` 为空时行不显示。
 
-### 11.3 落地顺序
+落地顺序：
 
-1. `update` 包 + 测试，`AppSettingsRoot` 接门与让路联动，README 加「强更门」一节；发 `0.2.0`。
-2. TrendingAI 接 `update { }`，删 `ForceUpdateGate.kt`、`MinVersion.kt` 与两处 `forceUpdateBlocked`；Tono 接 `update { }`，消费已有的 `min_version`。
-3. `language` 包 + 测试，`languageItem()`，Android appcompat 依赖与 Activity 校验，README 加「界面语言」一节（含 iOS 的 `CFBundleLocalizations`）；发 `0.3.0`。
-4. TrendingAI 接 `language { }`，删 `AppLanguage` 枚举、`MainActivity` 的 locale collect、设置页语言行；`whatsNew.language` 一行去掉。
-5. 更新 `docs/api.md` 的稳定契约（`UpdateEvent` / `LanguageEvent` 子类集合、两个新 key）与 brain atlas 的能力描述。
+1. `language` 包 + 测试，`languageItem()`，Android appcompat 依赖与 Activity 校验，README 加「界面语言」一节（含 iOS 的 `CFBundleLocalizations`）；发 `0.2.0`。
+2. TrendingAI 接 `language { }`，删 `AppLanguage` 枚举、`MainActivity` 的 locale collect、设置页语言行；`whatsNew.language` 一行去掉。
+3. 更新 `docs/api.md` 的稳定契约（`LanguageEvent` 子类集合、新 key）与 brain atlas 的能力描述。
+
+### 11.2 `update`：强更门，按需
+
+**不排期。** TrendingAI 的 `ForceUpdateGate` 上线至今零次下发；Tono 的 app-config 虽带 `min_version`，客户端没消费。强更门是保险不是功能——价值在事件发生前已装进老包，所以 TrendingAI 自己那份（约 100 行，有测试）保留不删；但进库只省它根上 6 行让路代码，不值一次发版加两个宿主 bump。
+
+**触发条件**（出现任一条再做）：后端真有不兼容改动要上；Tono 明确要消费 `min_version`。
+
+到时的形状，先记在这里免得重想：
+
+- 宿主只给 `minVersion: suspend () -> String?`，库冷启动调一次、缓存到 `appsettings.update.minVersion`，null / 异常不改缓存（fail-open）；初值同步读缓存判定，首帧不闪。
+- 门在 `AppSettingsRoot` 里、`content()` 外层，亮着时库内自动压住更新说明；`whatsNew.enabled` 保留给别的全屏。
+- 版本比较原样搬 TrendingAI 的 `isVersionBlocked`：只比 `-` / `+` 前的数值段，任一侧解析失败不拦。
+- 按钮默认 `openUrl(storeUrl)`，可换 `onUpdateClick`；文案三段可覆盖。
+- 事件 `UpdateEvent.ForceUpdateShown(current, min)` / `ForceUpdateClicked`。

@@ -108,27 +108,11 @@ interface AppSettingsEvent   // 根是普通接口（sealed 子类须同包）�
 
 ## v1.x（未实现，签名草案）
 
-设计与取舍见 [design.md](design.md) 第 11 节。接法沿用：配置块给了才启用，页面与行由库给。
+设计与取舍见 [design.md](design.md) 第 11 节。只排 `language`；`update`（强更门）按需，形状记在 design.md 11.2。
 
 ```kotlin
-// 根上新增两个配置块
-class AppSettingsConfigScope {
-    fun update(block: UpdateConfig.() -> Unit)
-    fun language(block: LanguageConfig.() -> Unit)
-}
-class AppSettings {
-    val language: LanguageInfo            // current: AppLanguage；resolved(): String
-}
-
-// update：强更门。给了 minVersion 才启用；门在 AppSettingsRoot 里、content 外层，亮着时更新说明不弹
-class UpdateConfig {
-    var minVersion: (suspend () -> String?)?        // 冷启动调一次；null / 异常不改缓存
-    var storeUrl: String?                           // 按钮默认 openUrl(storeUrl)
-    var onUpdateClick: (() -> Unit)?                // 给了就替代 storeUrl
-    var title / message / button: (@Composable () -> String)?
-}
-fun isVersionBlocked(current: String, minVersion: String?): Boolean   // 只比 -/+ 前的数值段，解析失败不拦
-sealed interface UpdateEvent : AppSettingsEvent { ForceUpdateShown(current, min); ForceUpdateClicked }
+class AppSettingsConfigScope { fun language(block: LanguageConfig.() -> Unit) }
+class AppSettings { val language: LanguageInfo }   // current: AppLanguage；resolved(): String
 
 // language：界面语言。给了 languages 才启用；Android 走 AppCompatDelegate.setApplicationLocales，iOS 行点按跳系统设置
 class LanguageConfig {
@@ -140,4 +124,4 @@ fun SettingsGroupScope.languageItem()                // 同 appearanceItem：And
 sealed interface LanguageEvent : AppSettingsEvent { Changed(tag: String?) }
 ```
 
-存储：`appsettings.update.minVersion`、`appsettings.language.tag`（`"system"` 为跟随系统），都是单值 string。
+存储：`appsettings.language.tag`，单值 string，`"system"` 为跟随系统。
