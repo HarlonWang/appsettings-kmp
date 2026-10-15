@@ -67,7 +67,11 @@ fun shouldShowWhatsNew(
 ): Boolean =
     lastSeenVersion != null &&
         lastSeenVersion != currentVersion &&
-        bundledVersion == currentVersion
+        bundledVersion == currentVersion &&
+        // 占位文件永远不弹，哪怕 dev 包的版本号也是 0.0.0
+        bundledVersion != PLACEHOLDER_VERSION
+
+private const val PLACEHOLDER_VERSION = "0.0.0"
 
 /**
  * 本次启动是否待弹更新说明，同步、不读内置 JSON，用 lastSeen != current 近似。

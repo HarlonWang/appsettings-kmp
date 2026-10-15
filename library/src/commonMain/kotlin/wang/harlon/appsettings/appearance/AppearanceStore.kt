@@ -48,6 +48,8 @@ private class SettingsAppearanceStore(
     private fun read(): Appearance {
         val raw = settings.getStringOrNull(key)
         val stored = raw?.let { runCatching { json.decodeFromString<StoredAppearance>(it) }.getOrNull() }
+            // 未来版本写的 JSON（降级安装）字段语义可能已变，整体回落默认，不按当前字段硬解
+            ?.takeIf { it.schemaVersion <= APPEARANCE_SCHEMA_VERSION }
         return stored?.toAppearance(options) ?: Appearance(mode = options.defaultMode, color = options.defaultColor)
     }
 

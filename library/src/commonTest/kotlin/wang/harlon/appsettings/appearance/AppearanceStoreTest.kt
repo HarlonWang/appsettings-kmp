@@ -55,6 +55,14 @@ class AppearanceStoreTest {
     }
 
     @Test
+    fun newer_schema_falls_back_to_defaults_entirely() {
+        val raw = """{"schemaVersion":2,"mode":"Dark","color":{"type":"preset","id":"pine"}}"""
+        val settings = MapSettings().apply { putString(DefaultAppearanceKey, raw) }
+        val a = AppearanceStore(settings, options).appearance.value
+        assertEquals(Appearance(ThemeMode.FollowSystem, ColorChoice.Preset("default")), a, "降级安装读到未来版本的 JSON 不按当前字段硬解")
+    }
+
+    @Test
     fun fields_fall_back_independently() {
         val raw = """{"schemaVersion":1,"mode":"Dark","color":{"type":"preset","id":"no-such-preset"},"customHistory":[{"argb":1,"style":"vivid","contrast":"high"}]}"""
         val settings = MapSettings().apply { putString(DefaultAppearanceKey, raw) }

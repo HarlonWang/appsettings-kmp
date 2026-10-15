@@ -73,6 +73,8 @@ internal data class AppearanceOptions(
     init {
         require(modes.isNotEmpty()) { "modes 不能为空" }
         require(palette.isNotEmpty() || colorSource is ColorSource.Fixed) { "Seed 源至少要一个预设" }
+        val preset = defaultColor as? ColorChoice.Preset
+        require(preset == null || palette.isEmpty() || palette.any { it.id == preset.id }) { "defaultColor 的预设 ${preset?.id} 不在 palette 里" }
     }
 
     /** 默认模式：有「跟随系统」就用它，否则取第一个。 */

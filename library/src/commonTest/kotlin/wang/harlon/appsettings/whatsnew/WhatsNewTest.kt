@@ -28,6 +28,7 @@ class WhatsNewTest {
     @Test
     fun bundled_placeholder_does_not_show() {
         assertFalse(shouldShowWhatsNew("0.9.0", "0.0.0", lastSeenVersion = "0.8.0"))
+        assertFalse(shouldShowWhatsNew("0.0.0", "0.0.0", lastSeenVersion = "0.8.0"), "dev 包版本号也是占位时同样不弹")
     }
 
     @Test

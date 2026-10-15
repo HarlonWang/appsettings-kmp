@@ -104,7 +104,7 @@ AboutScreen(onBack, onVersionClick = { taps++ }) {
 
 ### 更新说明
 
-随包的 JSON：`{"version":"1.2.0","zh":["…"],"en":["…"]}`，`version` 之外的每个 key 都是语言码。`version` 等于当前版本号且 lastSeen 低于它时，升级后首启弹一次；首装静默、占位文件（`0.0.0`）不弹。展示语言默认系统语言，`whatsNew { language = { appLanguage } }` 可覆盖。
+随包的 JSON：`{"version":"1.2.0","zh":["…"],"en":["…"]}`，`version` 之外的每个 key 都是语言码。`version` 等于当前版本号且 lastSeen 低于它时，升级后首启弹一次；首装静默、占位文件（`0.0.0`）不弹。展示语言默认系统语言，`whatsNew { language = { appLanguage } }` 可覆盖；有强更门之类更高优先级的全屏时，`whatsNew { enabled = { !blocked } }` 让它先别弹，待弹状态不会丢。
 
 ### 埋点
 

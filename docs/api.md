@@ -39,7 +39,7 @@ class AboutConfig {
     var onLinkClick: ((AboutLink) -> Unit)?     // 不给用系统浏览器
     fun checkUpdates(status: @Composable () -> UpdateStatus, onClick: () -> Unit)
 }
-class WhatsNewConfig { var bundled: (suspend () -> String?)?; var language: (() -> String)? }
+class WhatsNewConfig { var bundled: (suspend () -> String?)?; var language: (() -> String)?; var enabled: (@Composable () -> Boolean)?  /* false 时本次不弹，如强更门亮着 */ }
 class TopBarConfig { var containerColor: (@Composable () -> Color)? }
 ```
 

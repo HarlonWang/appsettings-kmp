@@ -86,8 +86,11 @@ fun AppSettingsRoot(
         ) {
             content()
             appSettings.whatsNewState?.let { state ->
-                val language = appSettings.config.whatsNew.language?.invoke() ?: platformSystemLanguage()
-                WhatsNewHost(state, language = language)
+                val enabled = appSettings.config.whatsNew.enabled?.invoke() ?: true
+                if (enabled) {
+                    val language = appSettings.config.whatsNew.language?.invoke() ?: platformSystemLanguage()
+                    WhatsNewHost(state, language = language)
+                }
             }
         }
     }
@@ -170,7 +173,9 @@ class AppearanceConfig internal constructor() {
         modes = modes,
         colorSource = colorSource,
         palette = palette,
-        defaultColor = defaultColor,
+        // 宿主只换了 palette 没改 defaultColor 时，默认的 Preset("default") 可能已不在色板里：规范化为第一项
+        defaultColor = defaultColor.takeUnless { it is ColorChoice.Preset && palette.none { p -> p.id == it.id } }
+            ?: palette.firstOrNull()?.let { ColorChoice.Preset(it.id) } ?: defaultColor,
         allowCustom = allowCustom,
         allowSystemDynamic = allowSystemDynamic,
         customHistoryLimit = customHistoryLimit,
@@ -222,6 +227,9 @@ class WhatsNewConfig internal constructor() {
 
     /** 展示语言；不给就用系统语言。 */
     var language: (() -> String)? = null
+
+    /** 返回 false 时本次不弹（例如强更门亮着时），下次组合再读；不给就一直允许。待弹状态不会因此丢失。 */
+    var enabled: (@Composable () -> Boolean)? = null
 }
 
 /** 库自带页面的顶栏。默认跟 Material 3（`surface`），有自己风格的 App 在这里改一行。 */

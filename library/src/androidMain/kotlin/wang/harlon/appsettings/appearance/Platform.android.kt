@@ -91,25 +91,30 @@ private class AndroidAppIconPlatform(
         options.firstOrNull { it.androidAlias != null && isEnabled(it.androidAlias) }?.id
 
     override fun apply(target: AppIconOption, options: List<AppIconOption>, onResult: (Throwable?) -> Unit) {
-        var failure: Throwable? = null
-        // 先启用目标再禁用其余：宁可桌面短暂出现两个图标，也别出现零个
-        val ordered = listOf(target) + options.filterNot { it.id == target.id }
-        ordered.forEach { option ->
+        // 先启用目标，成功了才去禁用其余：目标没有 alias 或启用失败就原地停下，桌面入口不会被清空
+        val targetAlias = target.androidAlias
+        if (targetAlias == null) {
+            onResult(IllegalStateException("图标档位 ${target.id} 没有 androidAlias，Android 上不可选"))
+            return
+        }
+        try {
+            pm.setComponentEnabledSetting(component(targetAlias), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
+        } catch (e: Exception) {
+            Log.w(TAG, "enable ${target.id} failed", e)
+            onResult(e)
+            return
+        }
+        options.forEach { option ->
             val alias = option.androidAlias ?: return@forEach
-            val state = if (option.id == target.id) {
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-            } else {
-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-            }
+            if (option.id == target.id) return@forEach
             try {
-                pm.setComponentEnabledSetting(component(alias), state, PackageManager.DONT_KILL_APP)
+                pm.setComponentEnabledSetting(component(alias), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP)
             } catch (e: Exception) {
-                // 单个 alias 失败不阻断其余
-                Log.w(TAG, "setComponentEnabledSetting failed for ${option.id}", e)
-                if (option.id == target.id) failure = e
+                // 单个 alias 禁用失败不阻断其余：目标已启用，最坏是桌面短暂多一个图标
+                Log.w(TAG, "disable ${option.id} failed", e)
             }
         }
-        onResult(failure)
+        onResult(null)
     }
 
     /** 声明错误要尽早暴露：写错 alias 名或 enabled 默认值平时没有任何报错，只会在用户手机上出现双图标或图标消失。 */
