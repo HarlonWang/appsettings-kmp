@@ -106,6 +106,38 @@ interface AppSettingsEvent   // 根是普通接口（sealed 子类须同包）�
 - `AboutLink`、`AppSettingsEvent` 子类集合（新增不算破坏）
 - `SettingsPage` 取值
 
-## v1.x（未实现）
+## v1.x（未实现，签名草案）
 
-`update`（版本比较、强更门）、`language`（界面语言、per-app locale）。接法沿用：配置块 + `languageItem()` 行 + 可能的整页屏。
+设计与取舍见 [design.md](design.md) 第 11 节。接法沿用：配置块给了才启用，页面与行由库给。
+
+```kotlin
+// 根上新增两个配置块
+class AppSettingsConfigScope {
+    fun update(block: UpdateConfig.() -> Unit)
+    fun language(block: LanguageConfig.() -> Unit)
+}
+class AppSettings {
+    val language: LanguageInfo            // current: AppLanguage；resolved(): String
+}
+
+// update：强更门。给了 minVersion 才启用；门在 AppSettingsRoot 里、content 外层，亮着时更新说明不弹
+class UpdateConfig {
+    var minVersion: (suspend () -> String?)?        // 冷启动调一次；null / 异常不改缓存
+    var storeUrl: String?                           // 按钮默认 openUrl(storeUrl)
+    var onUpdateClick: (() -> Unit)?                // 给了就替代 storeUrl
+    var title / message / button: (@Composable () -> String)?
+}
+fun isVersionBlocked(current: String, minVersion: String?): Boolean   // 只比 -/+ 前的数值段，解析失败不拦
+sealed interface UpdateEvent : AppSettingsEvent { ForceUpdateShown(current, min); ForceUpdateClicked }
+
+// language：界面语言。给了 languages 才启用；Android 走 AppCompatDelegate.setApplicationLocales，iOS 行点按跳系统设置
+class LanguageConfig {
+    var languages: List<String>                     // BCP 47 tag，顺序即菜单顺序；「跟随系统」固定第一
+    var label: (@Composable (tag: String) -> String)?   // 默认该语言自己的显示名
+}
+data class AppLanguage(val tag: String?)            // null 为跟随系统
+fun SettingsGroupScope.languageItem()                // 同 appearanceItem：Android 行内下拉选择，iOS 点按跳系统设置
+sealed interface LanguageEvent : AppSettingsEvent { Changed(tag: String?) }
+```
+
+存储：`appsettings.update.minVersion`、`appsettings.language.tag`（`"system"` 为跟随系统），都是单值 string。
