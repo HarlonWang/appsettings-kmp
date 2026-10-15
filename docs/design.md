@@ -16,6 +16,9 @@ Compose Multiplatform（Android / iOS）库，坐标 `wang.harlon:appsettings-km
 | 2026-10-14 | Tono 接受卡片组风格 | 接 `ui` 包即视觉向 TrendingAI 对齐，产品侧已同意 |
 | 2026-10-14 | 强更门、界面语言放 v1.x | Tono 现在都不需要，不为第一个用户提前设计 |
 | 2026-10-14 | chatbase-kmp 反向依赖本库的 `ui` 包 | 删掉 `ModelPicker` 里镜像的卡片规格，三份变一份 |
+| 2026-10-15 | **接入面 v2**：对外一个配置对象 `rememberAppSettings { }` + 一个 `AppSettingsRoot` + 整页屏；状态对象、`*Content`、Options、Session 全部 internal | 第一版要宿主认识十来个概念、Tono 接三项能力写了 150 行；新接入方照 README 不知道从哪进 |
+| 2026-10-15 | 设置页框架进库（壳、滚动、通用行），编排仍在宿主；二级页导航归宿主，库只发 `onOpen(page)` | 两个 App 的业务行都多，但骨架与通用行一样；库内导航会和宿主的返回、`screen_viewed`、状态恢复打架 |
+| 2026-10-15 | 不做 `*Content` 孪生体，也不做壳槽位；顶栏颜色一个配置项，默认 M3 | TrendingAI 的「换壳」拆开看只是顶栏颜色恒定 `surfaceContainer`，`TrendingScaffold` 其余接线在 pinned + 恒定色下无可见效果；库默认跟平台，house style 放配置 |
 | 之前 | 外观不拆 core / ui 两个 artifact | 同上一条「一个 artifact」 |
 | 之前 | 壁纸取色（`SystemDynamic`）进 v1 | 通用外观库最常被问的能力 |
 | 之前 | TrendingAI 的外观旧存储不做兼容 | 库不该为第一个用户背历史包袱；接受老用户升级后主题重置一次 |
@@ -60,7 +63,7 @@ appsettings-kmp/
 
 | 能力 | 进库 | 不进库的部分 |
 |---|---|---|
-| 卡片组、说明弹窗、底部浮层、下拉菜单 | v1 | 页面骨架（Scaffold / 顶栏 / 返回键） |
+| 卡片组、说明弹窗、底部浮层、下拉菜单、设置页框架与整页屏 | v1 | 导航、业务行 |
 | 更新说明 | v1 | whatsnew.json 怎么生成（CI 的事）、弹出时机的编排（宿主决定与强更门、登录浮层的先后） |
 | 关于 | v1 | 更新检查的实现（渠道相关）、赞助弹窗、调试开关之类的 App 私有行 |
 | 外观（模式、配色、调色台、壁纸取色、动态图标） | v1 | alias 声明与图标资源、图标预览怎么画 |
@@ -68,18 +71,18 @@ appsettings-kmp/
 | 界面语言 | v1.x | 摘要语言这类业务语言 |
 | 账户区、反馈、通知、数据来源、订阅 | 不进 | 判断标准：需要知道「这个 App 卖什么、登什么、连哪个服务端」的都不进 |
 
-**设置页本身不进库。** 哪些组、什么顺序、放哪些业务行是产品决策。库给的是件，页在 App。
+**设置页的框架进库，编排在 App。** 壳、滚动容器、页内间距、通用行由库给；哪些组、什么顺序、放哪些业务行仍是产品决策，宿主在 `SettingsScreen { }` 里摆。
 
 ## 4. 宿主契约（六条，对每个包都成立）
 
-1. **三件套：`Options` 进、`State` 出、`Event` 回。** `Options` 收所有因 App 而异的静态差异；`State` 由 `rememberXxxState(settings, options, onEvent)` 创建、挂事件出口；composable 只吃 `State`。
-   唯一例外是 about：没有可变状态，只有 `onLinkClick` 这一个出口。
+1. **一个配置对象。** `rememberAppSettings { appearance { } ; about { } ; whatsNew { } ; topBar { } }` 是宿主唯一要写的配置，每块有默认值，不写即默认或不启用；
+   `Options` / `State` / `Event` 三件套是库内部的组织方式，宿主只看到配置与事件。
 2. **存储：宿主传 `Settings` 实例，库只认命名空间。** 库不自己建实例。每个包的 key 都在 `appsettings.<包名>.` 下；多字段状态存一个带 `schemaVersion` 的 JSON key，单值直接存。
    **不提供任何旧数据兼容或迁移入口**：从旧实现迁过来的 App 接受一次性退化（外观重置一次、更新说明少弹一回）。
 3. **事件：一个事件根、每包一棵 sealed 子树，记落定后的结果。** 根 `AppSettingsEvent` 是普通接口（Kotlin 的 sealed 子类必须同包），`WhatsNewEvent`、`AppearanceEvent` 各自 sealed。宿主用一个函数映射到自己的埋点词汇表，库零埋点依赖。
    事件记的是落定状态（例如权限被拒后的 false），不是用户意图。
-4. **只给内容，不给页面。** 每个包导出 `XxxContent(state, modifier)` 与更细的件；不带 Scaffold、顶栏、返回键、导航。
-   `*Content` 是整页内容，自带滚动；更细的件不滚动。页面间跳转是回调。
+4. **页面由库给，导航归宿主。** 四个整页屏（设置页框架、外观、调色台、关于）自带 M3 壳；通用行 `appearanceItem()` / `aboutItem()` 可插进宿主任意组；
+   二级页之间的跳转全部经回调（`onOpen` / `onOpenColorLab`）交给宿主路由。`*Content` 只是实现细节，不公开。
 5. **文案与图标：库内中英文只是兜底，图标全部内联。** 所有可见文字都可覆盖，标签类型是 `@Composable () -> String`，不是 `StringResource`。
 6. **平台差异收在库内 expect/actual。** 系统深色、壁纸取色是否可用、activity-alias 切换与真实状态、iOS 备用图标、系统栏样式、打开系统应用设置。宿主 commonMain 不写平台分支。
 
@@ -131,3 +134,13 @@ appsettings-kmp/
 - **色规**：materialkolor 显式用 `SPEC_2025`，不作为可调项暴露。
 - **纯黑档**：`Seed` 源走 materialkolor 的 `isAmoled`；`Fixed` 源由库把 `background / surface*` 压成黑，变换是通用的。
 - **`isDark` 只算一次**：TrendingAI 曾在 `MainActivity` 为系统栏样式重抄一遍 `when`，且初值不一致导致首帧可能闪。库提供 `state.isDark()` 与 Android 的 `SystemBarsEffect(state)`。
+
+## 10. 接入面 v2 的形状（2026-10-15）
+
+公开面：`rememberAppSettings { }`、`AppSettingsRoot`、`SettingsScreen` / `AppearanceScreen` / `ColorLabScreen` / `AboutScreen`、`appearanceItem()` / `aboutItem()` / `GeneralSettingsGroup`、`ui` 包的基元、模型与事件类型。
+其余（`AppearanceState`、`AppearanceStore`、`*Content`、`ColorLabSession`、`AppIconState`、`WhatsNewState`、CompositionLocal）全部 internal。
+
+成功标准：Tono 接三项能力 1 个文件、40 行以内；没看过本仓的人照 README 10 分钟接上外观与关于。
+
+顺带的结论（不阻塞本库）：TrendingAI 的 `TrendingScaffold` 规则把「顶栏颜色恒定 `surfaceContainer`」编码成了页面骨架，
+其 nestedScroll / CompositionLocal 接线在 pinned + 恒定色下无可见效果；更合适的形态是只保留 `TrendingTopAppBar` 的颜色默认值、删掉 scaffold 包装。

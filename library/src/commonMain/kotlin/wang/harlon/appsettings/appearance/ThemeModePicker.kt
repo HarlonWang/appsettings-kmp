@@ -36,7 +36,7 @@ import wang.harlon.appsettings.icons.LightMode
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ThemeModePicker(state: AppearanceState, modifier: Modifier = Modifier) {
+internal fun ThemeModePicker(state: AppearanceState, modifier: Modifier = Modifier) {
     FlowRow(
         modifier = modifier
             .fillMaxWidth()

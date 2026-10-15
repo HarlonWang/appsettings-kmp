@@ -7,21 +7,21 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 /** 外观状态的持久化。[appearance] 用 StateFlow 保证同步初值，首帧就是真实值。 */
-interface AppearanceStore {
+internal interface AppearanceStore {
     val appearance: StateFlow<Appearance>
 
     fun update(transform: (Appearance) -> Appearance)
 }
 
 /** 默认存储 key。 */
-const val DefaultAppearanceKey: String = "appsettings.appearance.state"
+internal const val DefaultAppearanceKey: String = "appsettings.appearance.state"
 
 /**
  * 默认实现：一个 key 存一份带 schemaVersion 的 JSON。读不出来（新装、损坏、未来版本）、
  * 或读出的值在 [options] 里不合法（未知预设 id、不允许的来源、不在 modes 里的模式）都回落默认值。
  * 不读任何旧格式。
  */
-fun AppearanceStore(
+internal fun AppearanceStore(
     settings: Settings,
     options: AppearanceOptions,
     key: String = DefaultAppearanceKey,

@@ -53,7 +53,7 @@ fun SettingsGroup(
     title: String? = null,
     content: SettingsGroupScope.() -> Unit,
 ) {
-    val entries = SettingsGroupScope().apply(content).entries
+    val entries = SettingsGroupScope(LocalSettingsPageOpener.current).apply(content).entries
     Column(modifier = modifier.fillMaxWidth()) {
         title?.let {
             Text(
@@ -72,7 +72,10 @@ fun SettingsGroup(
 }
 
 /** 收集设置项。见 [SettingsGroup] 的说明——这里收的是 lambda，渲染发生在拿到总数之后。 */
-class SettingsGroupScope internal constructor() {
+class SettingsGroupScope internal constructor(
+    /** 设置页框架的导航出口；库的通用行用它，宿主的行不感知。 */
+    internal val openPage: ((SettingsPage) -> Unit)?,
+) {
     internal val entries = mutableListOf<@Composable (Shape) -> Unit>()
 
     /**

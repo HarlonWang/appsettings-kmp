@@ -33,7 +33,7 @@ import wang.harlon.appsettings.ui.SettingsDefaults
  * 顶栏、返回键由宿主套；调色台是独立页面，进入由宿主导航。
  */
 @Composable
-fun AppearanceContent(
+internal fun AppearanceContent(
     state: AppearanceState,
     modifier: Modifier = Modifier,
     onOpenColorLab: () -> Unit = {},
@@ -70,7 +70,7 @@ fun AppearanceContent(
 
 /** 节标题：图标 + 文字一行，宿主往 footer 里加自己的节时也可以用它对齐。 */
 @Composable
-fun SectionHeader(icon: ImageVector, text: String, modifier: Modifier = Modifier) {
+internal fun SectionHeader(icon: ImageVector, text: String, modifier: Modifier = Modifier) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.padding(bottom = 12.dp)) {
         Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(text = text, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp))

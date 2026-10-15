@@ -63,7 +63,7 @@ import wang.harlon.appsettings.ui.SettingsGroupScope
  * @param onLinkClick 所有 [AboutLink] 的统一出口，宿主在这里决定打开方式并埋点；null 时用 `LocalUriHandler`（系统浏览器）
  */
 @Composable
-fun AboutContent(
+internal fun AboutContent(
     name: String,
     version: String,
     modifier: Modifier = Modifier,
@@ -98,7 +98,7 @@ fun AboutContent(
 
 /** 头部：居中的应用名 + 版本号，可选图标在上方。单独可用，宿主想自己排版时拿它拼。 */
 @Composable
-fun AboutHeader(
+internal fun AboutHeader(
     name: String,
     version: String,
     modifier: Modifier = Modifier,
@@ -132,7 +132,7 @@ fun AboutHeader(
 }
 
 /** 收集关于页的卡片组。 */
-class AboutScope internal constructor() {
+internal class AboutScope internal constructor() {
     internal class Group(val title: String?, val content: AboutGroupScope.() -> Unit)
 
     internal val groups = mutableListOf<Group>()

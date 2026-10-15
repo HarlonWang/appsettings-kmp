@@ -56,7 +56,7 @@ import wang.harlon.appsettings.resources.appsettings_theme_color_system
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PalettePicker(
+internal fun PalettePicker(
     state: AppearanceState,
     onOpenColorLab: () -> Unit,
     modifier: Modifier = Modifier,

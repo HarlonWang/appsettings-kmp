@@ -12,7 +12,7 @@ import com.russhwolf.settings.Settings
 
 /** 更新说明的状态：本次启动有没有要弹的，以及关闭它。 */
 @Stable
-class WhatsNewState internal constructor(
+internal class WhatsNewState internal constructor(
     private val settings: Settings,
     private val currentVersion: String,
 ) {
@@ -60,7 +60,7 @@ class WhatsNewState internal constructor(
  * @param load 读取随包 JSON 文本，通常是 `Res.readBytes("files/whatsnew.json").decodeToString()`
  */
 @Composable
-fun rememberWhatsNewState(
+internal fun rememberWhatsNewState(
     settings: Settings,
     currentVersion: String,
     load: suspend () -> String?,

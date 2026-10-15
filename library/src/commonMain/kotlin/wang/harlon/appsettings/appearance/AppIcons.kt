@@ -58,7 +58,7 @@ data class AppIconOption(
 
 /** 动态图标状态。不自己持久化：真实状态只有系统里那一份，读 [current] 就是读系统。 */
 @Stable
-class AppIconState internal constructor(
+internal class AppIconState internal constructor(
     val options: List<AppIconOption>,
     private val platform: AppIconPlatform,
 ) {
@@ -98,7 +98,7 @@ class AppIconState internal constructor(
  * 不满足抛 IllegalStateException 并给出 manifest 写法；release 只打日志。
  */
 @Composable
-fun rememberAppIconState(
+internal fun rememberAppIconState(
     options: List<AppIconOption>,
     onEvent: (AppearanceEvent) -> Unit = {},
 ): AppIconState {
@@ -111,7 +111,7 @@ fun rememberAppIconState(
 /** 动态图标选择：3 列网格，每格是宿主画的预览 + 标签。 */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun AppIconPicker(icons: AppIconState, modifier: Modifier = Modifier) {
+internal fun AppIconPicker(icons: AppIconState, modifier: Modifier = Modifier) {
     Surface(
         shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,

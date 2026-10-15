@@ -8,7 +8,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import com.materialkolor.DynamicMaterialTheme
 import com.materialkolor.dynamiccolor.ColorSpec
@@ -20,10 +19,10 @@ import com.materialkolor.rememberDynamicMaterialThemeState
  *
  * - [ColorSource.Seed]：走 materialkolor，显式 SPEC_2025（M3 Expressive 的 2025 色规，更饱和、层次更强，不作为可调项暴露）。
  * - [ColorSource.Fixed] 与壁纸取色：现成 scheme，库做纯黑变换与切换动画。
- * - 内部 Provide [LocalAppearanceState]；[syncSystemBars] 在 Android 上按深浅设置系统栏前景（edge-to-edge）。
+ * - [syncSystemBars] 在 Android 上按深浅设置系统栏前景（edge-to-edge）。
  */
 @Composable
-fun AppearanceTheme(
+internal fun AppearanceTheme(
     state: AppearanceState,
     typography: Typography = MaterialTheme.typography,
     shapes: Shapes = MaterialTheme.shapes,
@@ -32,7 +31,7 @@ fun AppearanceTheme(
     content: @Composable () -> Unit,
 ) {
     val isDark = state.isDark()
-    CompositionLocalProvider(LocalAppearanceState provides state) {
+    run {
         if (syncSystemBars) PlatformSystemBarsEffect(isDark)
         when (val plan = schemePlan(state, isDark)) {
             is SchemePlan.Seed -> {
@@ -60,23 +59,6 @@ fun AppearanceTheme(
                 MaterialTheme(colorScheme = scheme, shapes = shapes, typography = typography, content = content)
             }
         }
-    }
-}
-
-/** 第二档：只要算好的 scheme（不带动画），主题有自己写法的宿主用。 */
-@Composable
-fun rememberAppearanceColorScheme(state: AppearanceState): ColorScheme {
-    val isDark = state.isDark()
-    return when (val plan = schemePlan(state, isDark)) {
-        is SchemePlan.Seed -> rememberDynamicMaterialThemeState(
-            seedColor = Color(plan.color.argb),
-            isDark = isDark,
-            isAmoled = plan.amoled,
-            style = plan.color.style.paletteStyle,
-            contrastLevel = plan.color.contrast.level,
-            specVersion = ColorSpec.SpecVersion.SPEC_2025,
-        ).colorScheme
-        is SchemePlan.Static -> if (plan.amoled) plan.scheme.amoled() else plan.scheme
     }
 }
 

@@ -37,6 +37,8 @@ kotlin {
             api(libs.compose.ui)
             // Settings 出现在 rememberXxxState 的签名里
             api(libs.multiplatform.settings)
+            // 宿主不传 Settings 时库自建一个
+            implementation(libs.multiplatform.settings.noarg)
             // ThemeStyle.paletteStyle 暴露 PaletteStyle，ColorSource.Fixed 接 ColorScheme
             api(libs.material.kolor)
             implementation(libs.androidx.graphics.shapes)

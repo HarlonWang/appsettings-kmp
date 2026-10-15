@@ -58,4 +58,9 @@
     <string name="appsettings_color_lab_preview_chip">Tag</string>
     <string name="appsettings_color_lab_saturation_value">Saturation and brightness</string>
     <string name="appsettings_color_lab_hue">Hue</string>
+    <string name="appsettings_settings_title">Settings</string>
+    <string name="appsettings_appearance_title">Appearance</string>
+    <string name="appsettings_about_title">About</string>
+    <string name="appsettings_general">General</string>
+    <string name="appsettings_back">Back</string>
 </resources>

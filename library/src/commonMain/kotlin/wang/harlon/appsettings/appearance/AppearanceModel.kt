@@ -59,7 +59,7 @@ sealed interface ColorSource {
 
 /** 每个 App 的静态差异全部收在这里。 */
 @Immutable
-data class AppearanceOptions(
+internal data class AppearanceOptions(
     val modes: List<ThemeMode> = ThemeMode.entries,
     val colorSource: ColorSource = ColorSource.Seed,
     val palette: List<ThemePreset> = DefaultPalette,

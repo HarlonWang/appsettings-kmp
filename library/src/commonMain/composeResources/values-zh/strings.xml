@@ -58,4 +58,9 @@
     <string name="appsettings_color_lab_preview_chip">标签</string>
     <string name="appsettings_color_lab_saturation_value">饱和度与明度</string>
     <string name="appsettings_color_lab_hue">色相</string>
+    <string name="appsettings_settings_title">设置</string>
+    <string name="appsettings_appearance_title">外观</string>
+    <string name="appsettings_about_title">关于</string>
+    <string name="appsettings_general">通用</string>
+    <string name="appsettings_back">返回</string>
 </resources>

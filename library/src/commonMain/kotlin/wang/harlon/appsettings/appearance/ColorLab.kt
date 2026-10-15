@@ -95,7 +95,7 @@ private const val PERSIST_DEBOUNCE_MS = 120L
  * 记一条历史并发 [AppearanceEvent.CustomApplied]。只看看没改的，什么都不写、什么都不发。
  */
 @Stable
-class ColorLabSession internal constructor(
+internal class ColorLabSession internal constructor(
     private val state: AppearanceState,
     private val scope: CoroutineScope,
 ) {
@@ -223,7 +223,7 @@ class ColorLabSession internal constructor(
 
 /** 建会话并在离开时自动落定；进入时发 [AppearanceEvent.ColorLabOpened]。宿主把 [ColorLabSession.undo] 接到顶栏按钮。 */
 @Composable
-fun rememberColorLabSession(state: AppearanceState): ColorLabSession {
+internal fun rememberColorLabSession(state: AppearanceState): ColorLabSession {
     val scope = rememberCoroutineScope()
     val session = remember(state) { ColorLabSession(state, scope) }
     LaunchedEffect(session) { state.emit(AppearanceEvent.ColorLabOpened) }
@@ -233,7 +233,7 @@ fun rememberColorLabSession(state: AppearanceState): ColorLabSession {
 
 /** 调色台整页内容，自带滚动：预览卡、饱和度 × 明度面板、色相条、色值、最近使用、风格、对比度。 */
 @Composable
-fun ColorLabContent(session: ColorLabSession, modifier: Modifier = Modifier) {
+internal fun ColorLabContent(session: ColorLabSession, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()

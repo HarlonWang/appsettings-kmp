@@ -22,7 +22,7 @@ import wang.harlon.appsettings.resources.appsettings_whats_new_title
  * @param language 展示语言（界面语言或系统语言），由宿主决定，见 [WhatsNewInfo.pick]
  */
 @Composable
-fun WhatsNewHost(state: WhatsNewState, language: String) {
+internal fun WhatsNewHost(state: WhatsNewState, language: String) {
     val info = state.pending ?: return
     val items = remember(info, language) { info.pick(language) }
     WhatsNewDialog(version = info.version, items = items, onDismiss = state::dismiss)
@@ -30,7 +30,7 @@ fun WhatsNewHost(state: WhatsNewState, language: String) {
 
 /** 更新说明弹窗本体：标题带版本号，条目逐行，一个「知道了」。想自己控制时机就直接用它。 */
 @Composable
-fun WhatsNewDialog(
+internal fun WhatsNewDialog(
     version: String,
     items: List<String>,
     onDismiss: () -> Unit,

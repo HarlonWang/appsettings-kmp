@@ -5,7 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,7 +13,7 @@ import com.russhwolf.settings.Settings
 
 /** 外观状态：读是 Compose State（同步初值），写走 [AppearanceStore]，事件从 [onEvent] 出去。 */
 @Stable
-class AppearanceState internal constructor(
+internal class AppearanceState internal constructor(
     internal val store: AppearanceStore,
     val options: AppearanceOptions,
     /** 平台是否支持壁纸取色。 */
@@ -93,7 +92,7 @@ class AppearanceState internal constructor(
  * 挂在根上一次，经 [AppearanceTheme] 提供给 [LocalAppearanceState]。
  */
 @Composable
-fun rememberAppearanceState(
+internal fun rememberAppearanceState(
     settings: Settings,
     options: AppearanceOptions = AppearanceOptions(),
     onEvent: (AppearanceEvent) -> Unit = {},
@@ -104,7 +103,7 @@ fun rememberAppearanceState(
 
 /** 自带 store 的重载，测试与特殊存储用。 */
 @Composable
-fun rememberAppearanceState(
+internal fun rememberAppearanceState(
     store: AppearanceStore,
     options: AppearanceOptions = AppearanceOptions(),
     onEvent: (AppearanceEvent) -> Unit = {},
@@ -115,9 +114,4 @@ fun rememberAppearanceState(
     // store 若被别处改写（多实例、调试工具），这里跟上；库自己的写入已在 write() 里同步
     LaunchedEffect(state) { store.appearance.collect { state.appearance = it } }
     return state
-}
-
-/** 由 [AppearanceTheme] 提供；在它外面读会抛，提示接线顺序错了。 */
-val LocalAppearanceState = compositionLocalOf<AppearanceState> {
-    error("LocalAppearanceState 未提供：把 AppearanceTheme 挂在根上")
 }
