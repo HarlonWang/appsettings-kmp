@@ -4,9 +4,7 @@
 
 English | [简体中文](README.zh-CN.md)
 
-[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-
-> Status: 0.2.1 on Maven Central — `ui` / `whatsnew` / `about` / `appearance` / `language` packages, integration surface v2. Used by TrendingAI, Tono and chatbase-kmp. A force-update gate is on the backlog, built on demand.
+[![Maven Central](https://img.shields.io/maven-central/v/wang.harlon/appsettings-kmp)](https://central.sonatype.com/artifact/wang.harlon/appsettings-kmp) [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 ## Three-minute setup
 

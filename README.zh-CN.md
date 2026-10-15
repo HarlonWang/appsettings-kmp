@@ -4,9 +4,7 @@
 
 [English](README.md) | **简体中文**
 
-[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-
-> 状态：0.2.1 已发 Maven Central（ui / whatsnew / about / appearance / language 五包，接入面 v2）。TrendingAI、Tono、chatbase-kmp 已接入。强更门按需。
+[![Maven Central](https://img.shields.io/maven-central/v/wang.harlon/appsettings-kmp)](https://central.sonatype.com/artifact/wang.harlon/appsettings-kmp) [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 ## 3 分钟接入
 
