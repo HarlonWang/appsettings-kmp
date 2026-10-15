@@ -9,8 +9,20 @@ import wang.harlon.appsettings.AppSettingsEvent
 data class AppLanguage(val tag: String?) {
     val isSystem: Boolean get() = tag == null
 
+    /**
+     * 实际生效的语言标签：明确选了就是它；跟随系统时取系统语言钳到 [languages]（先整标签、再主语言子标签），
+     * 都不中回落清单第一项。给非 Compose 场景用（拼请求的 locale、Accept-Language）；Compose 里直接读 `appSettings.language.resolved()`。
+     */
+    fun resolve(languages: List<String>): String = resolveLanguage(this, languages, platformSystemLanguageTag())
+
     companion object {
         val System = AppLanguage(null)
+
+        /**
+         * 从 [APP_LANGUAGE_STORAGE_KEY] 的值还原：缺省、`system`、清单外的值都当作跟随系统，大小写按清单写法规范化。
+         * 宿主在非 Compose 场景（ViewModel、网络层）用自己的 Settings 读同一个 key 时走这里，别自己解析。
+         */
+        fun fromStorage(stored: String?, languages: List<String>): AppLanguage = languageFromStorage(stored, languages)
     }
 }
 
@@ -19,7 +31,8 @@ sealed interface LanguageEvent : AppSettingsEvent {
     data class Changed(val tag: String?) : LanguageEvent
 }
 
-internal const val LANGUAGE_KEY = "appsettings.language.tag"
+/** 界面语言在 multiplatform-settings 里的 key。值是 BCP 47 标签或 `system`；稳定契约，宿主可直接读（配合 [AppLanguage.fromStorage]）。 */
+const val APP_LANGUAGE_STORAGE_KEY = "appsettings.language.tag"
 internal const val SYSTEM_TAG = "system"
 
 /** 存储值 → 语言：缺省、`system`、清单外的旧值都当作跟随系统；大小写按清单里的写法规范化。 */

@@ -14,7 +14,7 @@ class LanguageStateTest {
 
     @Test
     fun initial_value_is_read_synchronously() {
-        val settings = MapSettings().apply { putString(LANGUAGE_KEY, "zh") }
+        val settings = MapSettings().apply { putString(APP_LANGUAGE_STORAGE_KEY, "zh") }
         assertEquals(AppLanguage("zh"), state(settings).current)
     }
 
@@ -24,17 +24,17 @@ class LanguageStateTest {
         val events = mutableListOf<LanguageEvent>()
         val s = state(settings, events = events)
         s.select(AppLanguage("zh"))
-        assertEquals("zh", settings.getStringOrNull(LANGUAGE_KEY))
+        assertEquals("zh", settings.getStringOrNull(APP_LANGUAGE_STORAGE_KEY))
         assertEquals("zh", s.resolved())
         assertEquals<List<LanguageEvent>>(listOf(LanguageEvent.Changed("zh")), events)
     }
 
     @Test
     fun select_system_stores_sentinel_and_resolves_from_system() {
-        val settings = MapSettings().apply { putString(LANGUAGE_KEY, "zh") }
+        val settings = MapSettings().apply { putString(APP_LANGUAGE_STORAGE_KEY, "zh") }
         val s = state(settings, system = "en-GB")
         s.select(AppLanguage.System)
-        assertEquals(SYSTEM_TAG, settings.getStringOrNull(LANGUAGE_KEY))
+        assertEquals(SYSTEM_TAG, settings.getStringOrNull(APP_LANGUAGE_STORAGE_KEY))
         assertEquals("en", s.resolved())
     }
 
@@ -47,7 +47,7 @@ class LanguageStateTest {
         s.select(AppLanguage.System)
         assertEquals(AppLanguage.System, s.current)
         assertTrue(events.isEmpty())
-        assertTrue(!settings.hasKey(LANGUAGE_KEY))
+        assertTrue(!settings.hasKey(APP_LANGUAGE_STORAGE_KEY))
     }
 }
 
@@ -57,7 +57,7 @@ class LanguageStateReconcileTest {
 
     @Test
     fun storage_casing_is_normalized_to_list() {
-        val settings = MapSettings().apply { putString(LANGUAGE_KEY, "ZH") }
+        val settings = MapSettings().apply { putString(APP_LANGUAGE_STORAGE_KEY, "ZH") }
         assertEquals(AppLanguage("zh"), LanguageState(settings, languages) { "en" }.current)
     }
 
@@ -78,19 +78,19 @@ class LanguageStateReconcileTest {
         val s = LanguageState(settings, languages) { "en" }.also { it.platformApply = applied::add; it.onEvent = events::add }
         s.adopt("zh-Hans-CN")
         assertEquals(AppLanguage("zh"), s.current)
-        assertEquals("zh", settings.getStringOrNull(LANGUAGE_KEY))
+        assertEquals("zh", settings.getStringOrNull(APP_LANGUAGE_STORAGE_KEY))
         assertEquals<List<LanguageEvent>>(listOf(LanguageEvent.Changed("zh")), events)
         assertTrue(applied.isEmpty(), "采纳系统的选择时不反向应用")
     }
 
     @Test
     fun adopt_null_returns_to_system() {
-        val settings = MapSettings().apply { putString(LANGUAGE_KEY, "zh") }
+        val settings = MapSettings().apply { putString(APP_LANGUAGE_STORAGE_KEY, "zh") }
         val events = mutableListOf<LanguageEvent>()
         val s = LanguageState(settings, languages) { "en" }.also { it.onEvent = events::add }
         s.adopt(null)
         assertEquals(AppLanguage.System, s.current)
-        assertEquals(SYSTEM_TAG, settings.getStringOrNull(LANGUAGE_KEY))
+        assertEquals(SYSTEM_TAG, settings.getStringOrNull(APP_LANGUAGE_STORAGE_KEY))
         assertEquals<List<LanguageEvent>>(listOf(LanguageEvent.Changed(null)), events)
     }
 
