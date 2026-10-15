@@ -62,4 +62,7 @@
     <string name="appsettings_about_title">关于</string>
     <string name="appsettings_general">通用</string>
     <string name="appsettings_back">返回</string>
+    <string name="appsettings_language_title">应用语言</string>
+    <string name="appsettings_language_follow_system">跟随系统</string>
+    <string name="appsettings_language_open_system_settings">在系统设置里更改</string>
 </resources>

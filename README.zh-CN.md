@@ -6,7 +6,7 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-> 状态：0.1.0 已发 Maven Central（ui / whatsnew / about / appearance 四包，接入面 v2）。TrendingAI、Tono、chatbase-kmp 已接入。v1.x 排期：界面语言；强更门按需。
+> 状态：0.1.0 已发 Maven Central（ui / whatsnew / about / appearance 四包，接入面 v2）。TrendingAI、Tono、chatbase-kmp 已接入。0.2.0 加 language 包（界面语言），待发；强更门按需。
 
 ## 3 分钟接入
 
@@ -50,6 +50,7 @@ is About      -> AboutScreen(onBack = { nav.pop() })
 | `AppSettingsRoot` 挂在根上 | 是 | 页面与行会直接报错，提示接线顺序 |
 | 设置页与三条路由 | 是 | 库不接管导航，这四个页面都是你的路由 |
 | `whatsNew { bundled }` | 要更新说明功能才给 | 没有更新说明 |
+| `language { languages }` | 要界面语言行才给 | 没有界面语言，库文案跟系统 |
 | `about { privacy / terms / … }` | 要链接行才给 | 关于页只有应用名与版本号 |
 | `settings = ` 你已有的 multiplatform-settings 实例 | 否 | 库自建一个，只写 `appsettings.*` 命名空间 |
 | `appVersion` | 否 | 读平台（PackageInfo / CFBundleShortVersionString） |
@@ -106,7 +107,28 @@ AboutScreen(onBack, onVersionClick = { taps++ }) {
 
 随包的 JSON：`{"version":"1.2.0","zh":["…"],"en":["…"]}`，`version` 之外的每个 key 都是语言码。`version` 等于当前版本号且 lastSeen 低于它时，升级后首启弹一次；首装静默、占位文件（`0.0.0`）不弹。展示语言默认系统语言，`whatsNew { language = { appLanguage } }` 可覆盖；有强更门之类更高优先级的全屏时，`whatsNew { enabled = { !blocked } }` 让它先别弹，待弹状态不会丢。
 
-### 埋点
+#### 界面语言
+
+```kotlin
+language { languages = listOf("zh", "en") }      // 宿主翻译了哪些语言只有宿主知道；顺序即菜单顺序
+SettingsGroup(title = "通用") { languageItem(); appearanceItem(); aboutItem() }
+```
+
+行内「跟随系统 + 清单」下拉，选项默认显示该语言自己的名字（中文 / English），`label = { tag -> … }` 可覆盖。选择存 BCP 47 标签，清单外的旧值视为跟随系统。启用后更新说明的展示语言自动跟界面语言。宿主要读当前语言（拼外链的 locale 参数、给服务端的 Accept-Language）用 `appSettings.language.resolved()`。
+
+**Android**：库在 Root 里调 `AppCompatDelegate.setApplicationLocales`，宿主 Activity 必须继承 `AppCompatActivity`（debug 包首次使用校验，不是就抛异常）。API 33+ 由系统持久化；要让 API 33 以下冷启动也直接是选定语言，在 manifest 加：
+
+```xml
+<service android:name="androidx.appcompat.app.AppLocalesMetadataHolderService" android:enabled="false" android:exported="false">
+    <meta-data android:name="autoStoreLocales" android:value="true" />
+</service>
+```
+
+不加也能用，只是 API 33 以下冷启动首帧先按系统语言渲染、随即重建一次。
+
+**iOS**：没有不重启的 per-app 语言切换，行点按跳本 App 的系统设置页，用户在那里改；`Info.plist` 要有 `CFBundleLocalizations`（列出同一份清单），否则系统设置里没有「语言」一项。
+
+## 埋点
 
 ```kotlin
 rememberAppSettings {
@@ -114,6 +136,7 @@ rememberAppSettings {
         is AppearanceEvent.ModeChanged -> track("theme", e.mode.name)
         is AppearanceEvent.ColorSelected -> track("seed_color", e.choice.key())
         is WhatsNewEvent.Shown -> track("whats_new_shown", e.version)
+        is LanguageEvent.Changed -> track("app_language", e.tag ?: "system")
         else -> Unit
     } }
 }

@@ -150,7 +150,7 @@ appsettings-kmp/
 
 `language` 发 `0.2.0`，增量，不动已有稳定契约。源实现在 TrendingAI：`data/local/SettingsManager.kt` 的 `AppLanguage`、`MainActivity` 的 `setApplicationLocales`、`SettingsScreen` 的语言行；搬完删掉。
 
-### 11.1 `language`：界面语言
+### 11.1 `language`：界面语言（已落地，0.2.0）
 
 **进库**：语言模型、存储、Android 的 per-app locale 应用、设置页一行、「跟随系统」解析、事件。
 **不进库**：可选语言清单（宿主的 compose resources 支持哪些语言只有宿主知道）、摘要语言这类业务语言。
@@ -180,9 +180,11 @@ language {
 
 测试归库：`resolved()` 的钳制与回落、清单外旧值视为跟随系统、`languages` 为空时行不显示。
 
+实现时的两处偏离：行的下拉展开状态住在 trailing 里、整行 onClick 经一个转发器打开它（`settingsItem` 的 onClick 不是 Composable，无法 remember）；iOS 的 trailing 回显实际生效的语言而不是「去系统设置」文案，改法写在 description。
+
 落地顺序：
 
-1. `language` 包 + 测试，`languageItem()`，Android appcompat 依赖与 Activity 校验，README 加「界面语言」一节（含 iOS 的 `CFBundleLocalizations`）；发 `0.2.0`。
+1. ~~`language` 包 + 测试，`languageItem()`，Android appcompat 依赖与 Activity 校验，README 加「界面语言」一节~~ 已完成，待发 `0.2.0`。
 2. TrendingAI 接 `language { }`，删 `AppLanguage` 枚举、`MainActivity` 的 locale collect、设置页语言行；`whatsNew.language` 一行去掉。
 3. 更新 `docs/api.md` 的稳定契约（`LanguageEvent` 子类集合、新 key）与 brain atlas 的能力描述。
 

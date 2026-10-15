@@ -50,6 +50,8 @@ kotlin {
         androidMain.dependencies {
             // enableEdgeToEdge / SystemBarStyle：按深浅设置系统栏
             implementation(libs.androidx.activity)
+            // AppCompatDelegate.setApplicationLocales：界面语言的 per-app locale
+            implementation(libs.androidx.appcompat)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

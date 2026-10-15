@@ -26,6 +26,10 @@ import wang.harlon.appsettings.appearance.ThemeMode
 import wang.harlon.appsettings.appearance.ThemePreset
 import wang.harlon.appsettings.appearance.rememberAppIconState
 import wang.harlon.appsettings.appearance.rememberAppearanceState
+import wang.harlon.appsettings.language.AppLanguage
+import wang.harlon.appsettings.language.LanguageState
+import wang.harlon.appsettings.language.PlatformApplyLanguageEffect
+import wang.harlon.appsettings.language.rememberLanguageState
 import wang.harlon.appsettings.whatsnew.WhatsNewHost
 import wang.harlon.appsettings.whatsnew.WhatsNewState
 import wang.harlon.appsettings.whatsnew.rememberWhatsNewState
@@ -41,7 +45,7 @@ import wang.harlon.appsettings.whatsnew.rememberWhatsNewState
  * AppSettingsRoot(appSettings) { App() }
  * ```
  *
- * 不写的块走默认：外观默认开（全套预设 + 调色台 + 壁纸取色），关于页默认只有应用名与版本号，更新说明默认不启用。
+ * 不写的块走默认：外观默认开（全套预设 + 调色台 + 壁纸取色），关于页默认只有应用名与版本号，更新说明与界面语言默认不启用。
  * 配置块（含 about { } 等子块）都是 @Composable，里面可以直接 stringResource、读 Compose 状态；每次组合重新求值，但 [AppSettingsConfigScope.settings] 与
  * [AppearanceConfig] 里的结构性选项只在第一次组合时生效。
  */
@@ -56,7 +60,8 @@ fun rememberAppSettings(block: @Composable AppSettingsConfigScope.() -> Unit = {
     val whatsNew = remember { config.whatsNew.bundled }?.let { bundled ->
         rememberWhatsNewState(settings, currentVersion = config.appVersion ?: platformInfo.version, load = bundled)
     }
-    val appSettings = remember { AppSettings(appearance, icons, whatsNew) }
+    val language = remember { config.language.languages }.takeIf { it.isNotEmpty() }?.let { rememberLanguageState(settings, it) }
+    val appSettings = remember { AppSettings(appearance, icons, whatsNew, language) }
     // 配置可以每次组合都变（读了状态的 lambda），状态对象不重建，只把最新配置挂上去
     SideEffect {
         appSettings.config = config
@@ -64,11 +69,12 @@ fun rememberAppSettings(block: @Composable AppSettingsConfigScope.() -> Unit = {
         appearance.onEvent = config.onEvent
         icons?.onEvent = config.onEvent
         whatsNew?.onEvent = config.onEvent
+        language?.onEvent = config.onEvent
     }
     return appSettings
 }
 
-/** 挂在根上：主题（深浅 / 配色 / 切换动画 / 系统栏）+ 更新说明弹窗。等价于 MaterialTheme，typography / shapes 透传。 */
+/** 挂在根上：主题（深浅 / 配色 / 切换动画 / 系统栏）+ 界面语言应用 + 更新说明弹窗。等价于 MaterialTheme，typography / shapes 透传。 */
 @Composable
 fun AppSettingsRoot(
     appSettings: AppSettings,
@@ -77,6 +83,7 @@ fun AppSettingsRoot(
     content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(LocalAppSettings provides appSettings) {
+        appSettings.languageState?.let { PlatformApplyLanguageEffect(it.current) }
         AppearanceTheme(
             state = appSettings.appearanceState,
             typography = typography,
@@ -88,7 +95,10 @@ fun AppSettingsRoot(
             appSettings.whatsNewState?.let { state ->
                 val enabled = appSettings.config.whatsNew.enabled?.invoke() ?: true
                 if (enabled) {
-                    val language = appSettings.config.whatsNew.language?.invoke() ?: platformSystemLanguage()
+                    // 展示语言：显式配置 > 界面语言（启用了 language 块）> 系统语言
+                    val language = appSettings.config.whatsNew.language?.invoke()
+                        ?: appSettings.languageState?.resolved()
+                        ?: platformSystemLanguage()
                     WhatsNewHost(state, language = language)
                 }
             }
@@ -102,11 +112,13 @@ class AppSettings internal constructor(
     internal val appearanceState: AppearanceState,
     internal val appIconState: AppIconState?,
     internal val whatsNewState: WhatsNewState?,
+    internal val languageState: LanguageState?,
 ) {
     internal var config: AppSettingsConfigScope = AppSettingsConfigScope()
     internal var platformInfo: PlatformAppInfo = PlatformAppInfo("", "")
 
     val appearance: AppearanceInfo = AppearanceInfo()
+    val language: LanguageInfo = LanguageInfo()
 
     /** 外观里宿主偶尔要读的值。 */
     inner class AppearanceInfo internal constructor() {
@@ -116,6 +128,15 @@ class AppSettings internal constructor(
         /** 当前是否深色（含跟随系统的解析结果）。 */
         @Composable
         fun isDark(): Boolean = appearanceState.isDark()
+    }
+
+    /** 界面语言里宿主要读的值。没配 `language { }` 时 [current] 恒为跟随系统，[resolved] 返回系统语言。 */
+    inner class LanguageInfo internal constructor() {
+        /** 用户的选择；null tag 即跟随系统。 */
+        val current: AppLanguage get() = languageState?.current ?: AppLanguage.System
+
+        /** 实际生效的语言标签：跟随系统时取系统语言并钳到清单。拼外链的 locale 参数、给服务端的 Accept-Language 都读它。 */
+        fun resolved(): String = languageState?.resolved() ?: platformSystemLanguage()
     }
 
     internal val aboutName: String get() = config.about.name ?: platformInfo.name
@@ -141,6 +162,7 @@ class AppSettingsConfigScope internal constructor() {
     internal val appearance = AppearanceConfig()
     internal val about = AboutConfig()
     internal val whatsNew = WhatsNewConfig()
+    internal val language = LanguageConfig()
     internal val topBar = TopBarConfig()
 
     @Composable
@@ -149,6 +171,8 @@ class AppSettingsConfigScope internal constructor() {
     fun about(block: @Composable AboutConfig.() -> Unit) = about.block()
     @Composable
     fun whatsNew(block: @Composable WhatsNewConfig.() -> Unit) = whatsNew.block()
+    @Composable
+    fun language(block: @Composable LanguageConfig.() -> Unit) = language.block()
     @Composable
     fun topBar(block: @Composable TopBarConfig.() -> Unit) = topBar.block()
 }
@@ -230,6 +254,18 @@ class WhatsNewConfig internal constructor() {
 
     /** 返回 false 时本次不弹（例如强更门亮着时），下次组合再读；不给就一直允许。待弹状态不会因此丢失。 */
     var enabled: (@Composable () -> Boolean)? = null
+}
+
+/**
+ * 界面语言。给了 [languages] 才启用；只在第一次组合时生效。
+ * Android 要求宿主 Activity 是 AppCompatActivity；iOS 行点按跳系统设置，宿主 Info.plist 要声明 CFBundleLocalizations。见 README。
+ */
+class LanguageConfig internal constructor() {
+    /** 可选语言的 BCP 47 标签，顺序即菜单顺序，「跟随系统」固定第一；宿主翻译了哪些语言只有宿主知道。 */
+    var languages: List<String> = emptyList()
+
+    /** 选项文案；不给就用该语言自己的显示名（`zh` → 「中文」，`en` → 「English」）。 */
+    var label: (@Composable (tag: String) -> String)? = null
 }
 
 /** 库自带页面的顶栏。默认跟 Material 3（`surface`），有自己风格的 App 在这里改一行。 */
