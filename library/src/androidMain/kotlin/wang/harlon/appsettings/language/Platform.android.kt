@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.os.LocaleListCompat
 import java.util.Locale
@@ -19,18 +20,31 @@ internal actual fun platformSystemLanguageTag(): String = Locale.getDefault().to
 internal actual val platformSupportsInAppLanguage: Boolean = true
 
 /**
- * 应用 per-app locale：API 33+ 由系统持久化并在进程启动前生效；更低版本由 AppCompat 在 Activity 重建时应用，
- * 要跨进程持久化需宿主在 manifest 声明 `AppLocalesMetadataHolderService`（`autoStoreLocales=true`），见 README。
- * `setApplicationLocales` 同值不重建，每次启动都调一遍是安全的。
+ * 用户在行里选 → [LanguageState.platformApply] 调 `setApplicationLocales`，Activity 重建。
+ * 启动时对齐一次：
+ * - 系统里还没有 per-app locale 而存储有选择（API 33 以下、没配 autoStoreLocales 的冷启动）→ 应用存储的；
+ * - 系统里已有且与存储一致 → 不动；
+ * - 系统里已有但与存储不同（API 33+ 用户在系统设置里改过本 App 的语言）→ 采纳系统的，不反向覆盖。
  */
 @Composable
-internal actual fun PlatformApplyLanguageEffect(language: AppLanguage) {
+internal actual fun PlatformLanguageEffect(state: LanguageState) {
     val context = LocalContext.current
+    SideEffect { state.platformApply = ::applyLocales }
     LaunchedEffect(context) { validateActivity(context) }
-    LaunchedEffect(language) {
-        val locales = language.tag?.let(LocaleListCompat::forLanguageTags) ?: LocaleListCompat.getEmptyLocaleList()
-        AppCompatDelegate.setApplicationLocales(locales)
+    LaunchedEffect(state) {
+        val effective = AppCompatDelegate.getApplicationLocales().toLanguageTags().substringBefore(',').takeIf { it.isNotEmpty() }
+        val stored = state.current.tag
+        when {
+            effective == null -> if (stored != null) applyLocales(state.current)
+            stored != null && matchLanguage(effective, state.languages) == stored -> Unit
+            else -> state.adopt(effective)
+        }
     }
+}
+
+private fun applyLocales(language: AppLanguage) {
+    val locales = language.tag?.let(LocaleListCompat::forLanguageTags) ?: LocaleListCompat.getEmptyLocaleList()
+    AppCompatDelegate.setApplicationLocales(locales)
 }
 
 /** 不是 AppCompatActivity 时 API 33 以下静默无效：debug 包直接抛，release 只打日志。找不到 Activity（预览）不校验。 */
@@ -38,7 +52,7 @@ private fun validateActivity(context: Context) {
     val activity = context.findActivity() ?: return
     if (activity is AppCompatActivity) return
     val message = "appsettings-kmp 界面语言要求宿主 Activity 继承 AppCompatActivity（AppCompatDelegate.setApplicationLocales 在 API 33 以下靠它生效），" +
-        "现在是 ${activity::class.java.name}。把 ComponentActivity 换成 AppCompatActivity，主题用 Theme.AppCompat.* 系列。"
+        "现在是 ${activity::class.java.name}。把 ComponentActivity 换成 AppCompatActivity，主题用 Theme.AppCompat.* 或 Theme.Material3.* 系列。"
     val debuggable = (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
     if (debuggable) throw IllegalStateException(message) else Log.w(TAG, message)
 }

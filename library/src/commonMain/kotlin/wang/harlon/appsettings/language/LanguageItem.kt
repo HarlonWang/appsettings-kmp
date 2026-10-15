@@ -23,9 +23,10 @@ import wang.harlon.appsettings.ui.SettingsGroupScope
 
 /**
  * 「界面语言」行。Android 整行点按展开下拉（跟随系统 + 宿主清单）；iOS 点按跳本 App 的系统设置页，在那里改。
- * 要先配 `language { languages = … }`，否则 trailing 为空、点按无效。
+ * 没配 `language { languages = … }` 时这一行不出现。
  */
 fun SettingsGroupScope.languageItem() {
+    if (!languageEnabled) return
     // 下拉的展开状态住在 trailing 里（能 remember），整行 onClick 经这个转发器打开它
     val menu = MenuOpener()
     settingsItem(

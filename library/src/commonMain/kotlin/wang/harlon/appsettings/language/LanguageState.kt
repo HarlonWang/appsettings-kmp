@@ -18,20 +18,37 @@ internal class LanguageState internal constructor(
 ) {
     internal var onEvent: (LanguageEvent) -> Unit = {}
 
+    /** 平台把选择落到系统（Android 的 per-app locale）；由平台层在 Root 里挂上，iOS 为空操作。 */
+    internal var platformApply: (AppLanguage) -> Unit = {}
+
     var current: AppLanguage by mutableStateOf(languageFromStorage(settings.getStringOrNull(LANGUAGE_KEY), languages))
         private set
 
     /** 实际生效的语言标签：跟随系统时取系统语言并钳到清单。 */
     fun resolved(): String = resolveLanguage(current, languages, systemLanguage())
 
-    /** 写入并发 [LanguageEvent.Changed]；清单外的标签忽略，同值不重复发事件。 */
+    /** 用户在行里选：写入、发 [LanguageEvent.Changed]、交给平台生效。清单外的标签忽略，同值不重复。 */
     fun select(language: AppLanguage) {
-        val tag = language.tag
-        if (tag != null && tag !in languages) return
-        if (language == current) return
-        settings.putString(LANGUAGE_KEY, tag ?: SYSTEM_TAG)
+        val chosen = language.tag?.let { canonicalTag(it, languages)?.let(::AppLanguage) ?: return } ?: AppLanguage.System
+        if (!commit(chosen)) return
+        platformApply(chosen)
+    }
+
+    /**
+     * 平台发现系统里已经是另一种语言（Android 13+ 用户在系统设置里改过本 App 的语言）：以系统为准更新状态，不再反向应用。
+     * [tag] 清单外时什么都不做，留着系统的选择。
+     */
+    internal fun adopt(tag: String) {
+        val matched = matchLanguage(tag, languages) ?: return
+        commit(AppLanguage(matched))
+    }
+
+    private fun commit(language: AppLanguage): Boolean {
+        if (language == current) return false
+        settings.putString(LANGUAGE_KEY, language.tag ?: SYSTEM_TAG)
         current = language
-        onEvent(LanguageEvent.Changed(tag))
+        onEvent(LanguageEvent.Changed(language.tag))
+        return true
     }
 }
 

@@ -22,9 +22,13 @@ sealed interface LanguageEvent : AppSettingsEvent {
 internal const val LANGUAGE_KEY = "appsettings.language.tag"
 internal const val SYSTEM_TAG = "system"
 
-/** 存储值 → 语言：缺省、`system`、清单外的旧值都当作跟随系统。 */
+/** 存储值 → 语言：缺省、`system`、清单外的旧值都当作跟随系统；大小写按清单里的写法规范化。 */
 internal fun languageFromStorage(stored: String?, languages: List<String>): AppLanguage =
-    stored?.takeIf { it != SYSTEM_TAG && it in languages }?.let(::AppLanguage) ?: AppLanguage.System
+    stored?.takeIf { it != SYSTEM_TAG }?.let { canonicalTag(it, languages) }?.let(::AppLanguage) ?: AppLanguage.System
+
+/** 标签在清单里的规范写法（BCP 47 大小写不敏感）；不在清单里返回 null。 */
+internal fun canonicalTag(tag: String, languages: List<String>): String? =
+    languages.firstOrNull { it.equals(tag.replace('_', '-'), ignoreCase = true) }
 
 /**
  * 跟随系统时把系统语言钳到清单：先按完整标签匹配，再按主语言子标签（`zh-Hans` → `zh`）；都不中回落清单第一项。

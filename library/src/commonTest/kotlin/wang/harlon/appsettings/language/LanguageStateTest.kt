@@ -50,3 +50,43 @@ class LanguageStateTest {
         assertTrue(!settings.hasKey(LANGUAGE_KEY))
     }
 }
+
+class LanguageStateReconcileTest {
+
+    private val languages = listOf("zh", "en")
+
+    @Test
+    fun storage_casing_is_normalized_to_list() {
+        val settings = MapSettings().apply { putString(LANGUAGE_KEY, "ZH") }
+        assertEquals(AppLanguage("zh"), LanguageState(settings, languages) { "en" }.current)
+    }
+
+    @Test
+    fun select_normalizes_casing_and_applies_to_platform() {
+        val applied = mutableListOf<AppLanguage>()
+        val s = LanguageState(MapSettings(), languages) { "en" }.also { it.platformApply = applied::add }
+        s.select(AppLanguage("En"))
+        assertEquals(AppLanguage("en"), s.current)
+        assertEquals(listOf(AppLanguage("en")), applied)
+    }
+
+    @Test
+    fun adopt_takes_system_choice_without_applying_back() {
+        val settings = MapSettings()
+        val applied = mutableListOf<AppLanguage>()
+        val events = mutableListOf<LanguageEvent>()
+        val s = LanguageState(settings, languages) { "en" }.also { it.platformApply = applied::add; it.onEvent = events::add }
+        s.adopt("zh-Hans-CN")
+        assertEquals(AppLanguage("zh"), s.current)
+        assertEquals("zh", settings.getStringOrNull(LANGUAGE_KEY))
+        assertEquals<List<LanguageEvent>>(listOf(LanguageEvent.Changed("zh")), events)
+        assertTrue(applied.isEmpty(), "采纳系统的选择时不反向应用")
+    }
+
+    @Test
+    fun adopt_outside_list_is_ignored() {
+        val s = LanguageState(MapSettings(), languages) { "en" }
+        s.adopt("ja-JP")
+        assertEquals(AppLanguage.System, s.current)
+    }
+}

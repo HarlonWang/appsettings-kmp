@@ -8,9 +8,12 @@ internal expect fun platformSystemLanguageTag(): String
 /** 平台能否在 App 内切换语言：Android 走 per-app locale；iOS 只能去系统设置改。 */
 internal expect val platformSupportsInAppLanguage: Boolean
 
-/** 把选择应用到平台。Android 调 `AppCompatDelegate.setApplicationLocales`（同值不重建）；iOS 无事可做。 */
+/**
+ * 挂在 Root 上：给 [LanguageState.platformApply] 接上平台实现，并在启动时把状态与系统里的实际生效语言对齐
+ * （Android：系统设置里改过就采纳，没生效过就应用一次）。iOS 无事可做。
+ */
 @Composable
-internal expect fun PlatformApplyLanguageEffect(language: AppLanguage)
+internal expect fun PlatformLanguageEffect(state: LanguageState)
 
 /** 打开本 App 的系统设置页（iOS 在那里改 App 语言）。 */
 internal expect fun openPlatformAppSettings()

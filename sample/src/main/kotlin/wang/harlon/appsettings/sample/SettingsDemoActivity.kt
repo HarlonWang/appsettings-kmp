@@ -58,7 +58,7 @@ class SettingsDemoActivity : AppCompatActivity() {
                 }
                 whatsNew { bundled = { DEMO_WHATS_NEW } }
                 // 界面语言：清单是宿主翻译了的语言；切换后 Activity 重建，库文案随之变化
-                language { languages = listOf("zh", "en") }
+                language { languages = listOf("en", "zh") }
                 // 有自己顶栏风格的 App 改这一行即可：
                 // topBar { containerColor = { MaterialTheme.colorScheme.surfaceContainer } }
             }

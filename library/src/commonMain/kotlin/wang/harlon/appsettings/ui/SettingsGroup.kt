@@ -53,7 +53,7 @@ fun SettingsGroup(
     title: String? = null,
     content: SettingsGroupScope.() -> Unit,
 ) {
-    val entries = SettingsGroupScope(LocalSettingsPageOpener.current).apply(content).entries
+    val entries = SettingsGroupScope(LocalSettingsPageOpener.current, LocalLanguageItemEnabled.current).apply(content).entries
     Column(modifier = modifier.fillMaxWidth()) {
         title?.let {
             Text(
@@ -75,6 +75,8 @@ fun SettingsGroup(
 class SettingsGroupScope internal constructor(
     /** 设置页框架的导航出口；库的通用行用它，宿主的行不感知。 */
     internal val openPage: ((SettingsPage) -> Unit)?,
+    /** 界面语言是否启用；行是非 Composable 注册的，只能在这里拿到。 */
+    internal val languageEnabled: Boolean = false,
 ) {
     internal val entries = mutableListOf<@Composable (Shape) -> Unit>()
 

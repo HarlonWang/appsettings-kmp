@@ -26,9 +26,10 @@ import wang.harlon.appsettings.appearance.ThemeMode
 import wang.harlon.appsettings.appearance.ThemePreset
 import wang.harlon.appsettings.appearance.rememberAppIconState
 import wang.harlon.appsettings.appearance.rememberAppearanceState
+import wang.harlon.appsettings.ui.LocalLanguageItemEnabled
 import wang.harlon.appsettings.language.AppLanguage
 import wang.harlon.appsettings.language.LanguageState
-import wang.harlon.appsettings.language.PlatformApplyLanguageEffect
+import wang.harlon.appsettings.language.PlatformLanguageEffect
 import wang.harlon.appsettings.language.rememberLanguageState
 import wang.harlon.appsettings.whatsnew.WhatsNewHost
 import wang.harlon.appsettings.whatsnew.WhatsNewState
@@ -62,10 +63,12 @@ fun rememberAppSettings(block: @Composable AppSettingsConfigScope.() -> Unit = {
     }
     val language = remember { config.language.languages }.takeIf { it.isNotEmpty() }?.let { rememberLanguageState(settings, it) }
     val appSettings = remember { AppSettings(appearance, icons, whatsNew, language) }
-    // 配置可以每次组合都变（读了状态的 lambda），状态对象不重建，只把最新配置挂上去
+    // 配置可以每次组合都变（读了状态的 lambda），状态对象不重建，只把最新配置挂上去。
+    // 直接赋值而不放 SideEffect：首帧里 Root 与页面就会读 config，SideEffect 要到整次组合结束才跑，
+    // 首帧读到的会是空配置（label、about 链接、topBar 颜色都不对）且没有任何状态变化触发重组
+    appSettings.config = config
+    appSettings.platformInfo = platformInfo
     SideEffect {
-        appSettings.config = config
-        appSettings.platformInfo = platformInfo
         appearance.onEvent = config.onEvent
         icons?.onEvent = config.onEvent
         whatsNew?.onEvent = config.onEvent
@@ -82,8 +85,11 @@ fun AppSettingsRoot(
     shapes: Shapes = MaterialTheme.shapes,
     content: @Composable () -> Unit,
 ) {
-    CompositionLocalProvider(LocalAppSettings provides appSettings) {
-        appSettings.languageState?.let { PlatformApplyLanguageEffect(it.current) }
+    CompositionLocalProvider(
+        LocalAppSettings provides appSettings,
+        LocalLanguageItemEnabled provides (appSettings.languageState != null),
+    ) {
+        appSettings.languageState?.let { PlatformLanguageEffect(it) }
         AppearanceTheme(
             state = appSettings.appearanceState,
             typography = typography,

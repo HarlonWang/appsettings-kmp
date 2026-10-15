@@ -180,7 +180,7 @@ language {
 
 测试归库：`resolved()` 的钳制与回落、清单外旧值视为跟随系统、`languages` 为空时行不显示。
 
-实现时的两处偏离：行的下拉展开状态住在 trailing 里、整行 onClick 经一个转发器打开它（`settingsItem` 的 onClick 不是 Composable，无法 remember）；iOS 的 trailing 回显实际生效的语言而不是「去系统设置」文案，改法写在 description。
+实现时的几处偏离与补充：行的下拉展开状态住在 trailing 里、整行 onClick 经一个转发器打开它（`settingsItem` 的 onClick 不是 Composable，无法 remember）；iOS 的 trailing 回显实际生效的语言而不是「去系统设置」文案，改法写在 description；Android 13+ 用户可在系统设置里改本 App 语言，库启动时以系统为准采纳（发 `Changed`）而不是反向覆盖；清单第一项约定为默认资源语言，`resolved()` 的回落才与平台实际渲染一致；iOS 在系统设置里改语言不发事件，`Changed` 记的是 App 内的选择。
 
 落地顺序：
 

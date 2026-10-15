@@ -110,13 +110,13 @@ AboutScreen(onBack, onVersionClick = { taps++ }) {
 #### 界面语言
 
 ```kotlin
-language { languages = listOf("zh", "en") }      // 宿主翻译了哪些语言只有宿主知道；顺序即菜单顺序
+language { languages = listOf("en", "zh") }      // 宿主翻译了哪些语言只有宿主知道；顺序即菜单顺序，第一项必须是默认资源的语言
 SettingsGroup(title = "通用") { languageItem(); appearanceItem(); aboutItem() }
 ```
 
-行内「跟随系统 + 清单」下拉，选项默认显示该语言自己的名字（中文 / English），`label = { tag -> … }` 可覆盖。选择存 BCP 47 标签，清单外的旧值视为跟随系统。启用后更新说明的展示语言自动跟界面语言。宿主要读当前语言（拼外链的 locale 参数、给服务端的 Accept-Language）用 `appSettings.language.resolved()`。
+行内「跟随系统 + 清单」下拉，选项默认显示该语言自己的名字（中文 / English），`label = { tag -> … }` 可覆盖。选择存 BCP 47 标签，清单外的旧值视为跟随系统。启用后更新说明的展示语言自动跟界面语言。宿主要读当前语言（拼外链的 locale 参数、给服务端的 Accept-Language）用 `appSettings.language.resolved()`：跟随系统时按主语言子标签钳到清单，系统语言不在清单里就取第一项——所以**第一项要和 `values/` / 开发语言一致**，这样它和平台实际渲染的回退语言才是同一个。
 
-**Android**：库在 Root 里调 `AppCompatDelegate.setApplicationLocales`，宿主 Activity 必须继承 `AppCompatActivity`（debug 包首次使用校验，不是就抛异常）。API 33+ 由系统持久化；要让 API 33 以下冷启动也直接是选定语言，在 manifest 加：
+**Android**：库在 Root 里调 `AppCompatDelegate.setApplicationLocales`，宿主 Activity 必须继承 `AppCompatActivity`、主题用 `Theme.AppCompat.*` 或 `Theme.Material3.*` 系列（debug 包首次使用校验 Activity，不是就抛异常；主题不对 AppCompat 自己会在启动时抛）。API 33+ 由系统持久化，用户也可以在系统设置里改本 App 的语言，库启动时会采纳系统里的选择而不是反向覆盖；清单最好和 `locales_config.xml` 一致。要让 API 33 以下冷启动也直接是选定语言，在 manifest 加：
 
 ```xml
 <service android:name="androidx.appcompat.app.AppLocalesMetadataHolderService" android:enabled="false" android:exported="false">
@@ -126,7 +126,7 @@ SettingsGroup(title = "通用") { languageItem(); appearanceItem(); aboutItem() 
 
 不加也能用，只是 API 33 以下冷启动首帧先按系统语言渲染、随即重建一次。
 
-**iOS**：没有不重启的 per-app 语言切换，行点按跳本 App 的系统设置页，用户在那里改；`Info.plist` 要有 `CFBundleLocalizations`（列出同一份清单），否则系统设置里没有「语言」一项。
+**iOS**：没有不重启的 per-app 语言切换，行点按跳本 App 的系统设置页，用户在那里改，行尾回显实际生效的语言；`Info.plist` 要有 `CFBundleLocalizations`（列出同一份清单），否则系统设置里没有「语言」一项。在系统设置里改语言不会发 `LanguageEvent`（那不是 App 内的选择），要统计就在启动时记一次 `resolved()`。
 
 ## 埋点
 
