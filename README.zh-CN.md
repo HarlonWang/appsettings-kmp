@@ -167,4 +167,4 @@ topBar { containerColor = { MaterialTheme.colorScheme.surfaceContainer } }
 
 ## 许可
 
-MIT。`library/src/commonMain/kotlin/wang/harlon/appsettings/icons/` 下的少数图标取自 material-icons-extended / core（Apache License 2.0），文件头保留原版权声明。
+MIT。

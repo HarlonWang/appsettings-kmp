@@ -1,6 +1,8 @@
 package wang.harlon.appsettings.language
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -12,8 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import org.jetbrains.compose.resources.stringResource
 import wang.harlon.appsettings.LocalAppSettings
-import wang.harlon.appsettings.icons.AppSettingsIcons
-import wang.harlon.appsettings.icons.Language
 import wang.harlon.appsettings.resources.Res
 import wang.harlon.appsettings.resources.appsettings_language_follow_system
 import wang.harlon.appsettings.resources.appsettings_language_open_system_settings
@@ -30,7 +30,7 @@ fun SettingsGroupScope.languageItem() {
     // 下拉的展开状态住在 trailing 里（能 remember），整行 onClick 经这个转发器打开它
     val menu = MenuOpener()
     settingsItem(
-        icon = AppSettingsIcons.Language,
+        icon = Icons.Default.Language,
         title = { Text(stringResource(Res.string.appsettings_language_title)) },
         description = if (platformSupportsInAppLanguage) null else {
             { Text(stringResource(Res.string.appsettings_language_open_system_settings)) }

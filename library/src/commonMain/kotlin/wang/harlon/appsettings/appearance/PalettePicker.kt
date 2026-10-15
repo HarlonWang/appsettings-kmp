@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,8 +42,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
-import wang.harlon.appsettings.icons.AppSettingsIcons
-import wang.harlon.appsettings.icons.Wallpaper
 import wang.harlon.appsettings.resources.Res
 import wang.harlon.appsettings.resources.appsettings_theme_color_custom
 import wang.harlon.appsettings.resources.appsettings_theme_color_system
@@ -98,7 +97,7 @@ internal fun PalettePicker(
                     name = stringResource(Res.string.appsettings_theme_color_system),
                     brush = brush,
                     contentTint = if ((system?.primary ?: MaterialTheme.colorScheme.primary).luminance() < 0.5f) Color.White else Color.Black,
-                    idleIcon = AppSettingsIcons.Wallpaper,
+                    idleIcon = Icons.Default.Wallpaper,
                     selected = appearance.color is ColorChoice.SystemDynamic,
                     onClick = { state.select(ColorChoice.SystemDynamic) },
                 )

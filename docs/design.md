@@ -53,7 +53,7 @@ appsettings-kmp/
 |---|---|
 | compose material3、foundation、runtime | 全部 |
 | compose components-resources | 库内中英文兜底文案 |
-| material-icons-core | 返回键一类的基础图标；**不依赖 extended**，用到的其余图标以 `ImageVector` 内联 |
+| material-icons-extended | 全部图标（2026-10-15 起；此前只依赖 core、其余内联，宿主都已依赖 extended，内联省不下任何体积） |
 | materialkolor | appearance 的 seed 取色、SPEC_2025 |
 | multiplatform-settings | 持久化 |
 | kotlinx-serialization-json | appearance 的 JSON 存储、whatsnew 解析 |
@@ -84,7 +84,7 @@ appsettings-kmp/
    事件记的是落定状态（例如权限被拒后的 false），不是用户意图。
 4. **页面由库给，导航归宿主。** 四个整页屏（设置页框架、外观、调色台、关于）自带 M3 壳；通用行 `appearanceItem()` / `aboutItem()` 可插进宿主任意组；
    二级页之间的跳转全部经回调（`onOpen` / `onOpenColorLab`）交给宿主路由。`*Content` 只是实现细节，不公开。
-5. **文案与图标：库内中英文只是兜底，图标全部内联。** 所有可见文字都可覆盖，标签类型是 `@Composable () -> String`，不是 `StringResource`。
+5. **文案：库内中英文只是兜底。** 所有可见文字都可覆盖，标签类型是 `@Composable () -> String`，不是 `StringResource`。
 6. **平台差异收在库内 expect/actual。** 系统深色、壁纸取色是否可用、activity-alias 切换与真实状态、iOS 备用图标、系统栏样式、打开系统应用设置。宿主 commonMain 不写平台分支。
 
 另外两条实现约束，来自 TrendingAI 的教训：

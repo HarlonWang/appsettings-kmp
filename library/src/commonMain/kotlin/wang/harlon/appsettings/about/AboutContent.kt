@@ -11,6 +11,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Feedback
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.PrivacyTip
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
@@ -23,13 +29,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
-import wang.harlon.appsettings.icons.AppSettingsIcons
-import wang.harlon.appsettings.icons.Article
-import wang.harlon.appsettings.icons.Description
-import wang.harlon.appsettings.icons.Feedback
-import wang.harlon.appsettings.icons.History
-import wang.harlon.appsettings.icons.PrivacyTip
-import wang.harlon.appsettings.icons.Public
 import wang.harlon.appsettings.resources.Res
 import wang.harlon.appsettings.resources.appsettings_about_changelog
 import wang.harlon.appsettings.resources.appsettings_about_check_failed
@@ -215,12 +214,12 @@ private fun AboutLink.defaultLabel(): String = when (this) {
 }
 
 private fun AboutLink.defaultIcon(): ImageVector? = when (this) {
-    is AboutLink.Privacy -> AppSettingsIcons.PrivacyTip
-    is AboutLink.Terms -> AppSettingsIcons.Description
-    is AboutLink.Website -> AppSettingsIcons.Public
-    is AboutLink.Changelog -> AppSettingsIcons.History
-    is AboutLink.Feedback -> AppSettingsIcons.Feedback
-    is AboutLink.Licenses -> AppSettingsIcons.Article
+    is AboutLink.Privacy -> Icons.Default.PrivacyTip
+    is AboutLink.Terms -> Icons.Default.Description
+    is AboutLink.Website -> Icons.Default.Public
+    is AboutLink.Changelog -> Icons.Default.History
+    is AboutLink.Feedback -> Icons.Default.Feedback
+    is AboutLink.Licenses -> Icons.AutoMirrored.Filled.Article
     is AboutLink.Custom -> icon
 }
 

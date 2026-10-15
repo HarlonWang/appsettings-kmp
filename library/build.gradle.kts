@@ -43,8 +43,8 @@ kotlin {
             api(libs.material.kolor)
             implementation(libs.androidx.graphics.shapes)
             implementation(libs.compose.components.resources)
-            // 只要 core：materialIcon/materialPath 助手与 Refresh；其余图标内联在 icons 包
-            implementation(libs.compose.icons.core)
+            // 图标直接用 extended（含 core），不再内联；两个宿主本来就依赖它
+            implementation(libs.compose.icons.extended)
             implementation(libs.kotlinx.serialization.json)
         }
         androidMain.dependencies {
