@@ -1,12 +1,12 @@
 # appsettings-kmp
 
-> App 里与业务无关的那层设置——外观、关于、更新说明、设置页——一个配置对象接完。Compose Multiplatform，Android / iOS。
+> App 里与业务无关的那层设置——外观、关于、更新说明、界面语言、设置页——一个配置对象接完。Compose Multiplatform，Android / iOS。
 
-**简体中文** | English（待写）
+[English](README.md) | **简体中文**
 
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-> 状态：0.1.0 已发 Maven Central（ui / whatsnew / about / appearance 四包，接入面 v2）。TrendingAI、Tono、chatbase-kmp 已接入。0.2.0 加 language 包（界面语言），待发；强更门按需。
+> 状态：0.2.1 已发 Maven Central（ui / whatsnew / about / appearance / language 五包，接入面 v2）。TrendingAI、Tono、chatbase-kmp 已接入。强更门按需。
 
 ## 3 分钟接入
 
@@ -105,9 +105,9 @@ AboutScreen(onBack, onVersionClick = { taps++ }) {
 
 ### 更新说明
 
-随包的 JSON：`{"version":"1.2.0","zh":["…"],"en":["…"]}`，`version` 之外的每个 key 都是语言码。`version` 等于当前版本号且 lastSeen 低于它时，升级后首启弹一次；首装静默、占位文件（`0.0.0`）不弹。展示语言默认系统语言，`whatsNew { language = { appLanguage } }` 可覆盖；有强更门之类更高优先级的全屏时，`whatsNew { enabled = { !blocked } }` 让它先别弹，待弹状态不会丢。
+随包的 JSON：`{"version":"1.2.0","zh":["…"],"en":["…"]}`，`version` 之外的每个 key 都是语言码。`version` 等于当前版本号且 lastSeen 低于它时，升级后首启弹一次；首装静默、占位文件（`0.0.0`）不弹。展示语言默认系统语言（启用了 `language { }` 就跟界面语言），`whatsNew { language = { … } }` 可覆盖；有强更门之类更高优先级的全屏时，`whatsNew { enabled = { !blocked } }` 让它先别弹，待弹状态不会丢。
 
-#### 界面语言
+### 界面语言
 
 ```kotlin
 language { languages = listOf("en", "zh") }      // 宿主翻译了哪些语言只有宿主知道；顺序即菜单顺序，第一项必须是默认资源的语言
@@ -128,7 +128,7 @@ SettingsGroup(title = "通用") { languageItem(); appearanceItem(); aboutItem() 
 
 **iOS**：没有不重启的 per-app 语言切换，行点按跳本 App 的系统设置页，用户在那里改，行尾回显实际生效的语言；`Info.plist` 要有 `CFBundleLocalizations`（列出同一份清单），否则系统设置里没有「语言」一项。在系统设置里改语言不会发 `LanguageEvent`（那不是 App 内的选择），要统计就在启动时记一次 `resolved()`。
 
-## 埋点
+### 埋点
 
 ```kotlin
 rememberAppSettings {

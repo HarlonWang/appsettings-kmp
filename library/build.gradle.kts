@@ -81,7 +81,7 @@ mavenPublishing {
 
     pom {
         name.set("appsettings-kmp")
-        description.set("Compose Multiplatform app settings toolkit: appearance, about, what's new and a shared settings UI kit.")
+        description.set("Compose Multiplatform app settings toolkit: appearance, about, what's new, app language and a shared settings UI kit.")
         url.set("https://github.com/HarlonWang/appsettings-kmp")
 
         licenses {
