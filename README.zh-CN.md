@@ -6,7 +6,7 @@
 
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-> 状态：接入面 v2（配置对象 + 整页屏）。TrendingAI、Tono 已接入；尚未发 Maven Central，宿主经 composite build 吃源码。
+> 状态：0.1.0 已发 Maven Central（ui / whatsnew / about / appearance 四包，接入面 v2）。TrendingAI、Tono、chatbase-kmp 已接入。v1.x 规划：强更门、界面语言。
 
 ## 3 分钟接入
 
