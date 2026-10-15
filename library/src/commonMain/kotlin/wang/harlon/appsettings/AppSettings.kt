@@ -42,7 +42,7 @@ import wang.harlon.appsettings.whatsnew.rememberWhatsNewState
  * ```
  *
  * 不写的块走默认：外观默认开（全套预设 + 调色台 + 壁纸取色），关于页默认只有应用名与版本号，更新说明默认不启用。
- * 配置块每次组合都会重新求值，所以里面可以读 Compose 状态；但 [AppSettingsConfigScope.settings] 与
+ * 配置块（含 about { } 等子块）都是 @Composable，里面可以直接 stringResource、读 Compose 状态；每次组合重新求值，但 [AppSettingsConfigScope.settings] 与
  * [AppearanceConfig] 里的结构性选项只在第一次组合时生效。
  */
 @Composable
@@ -140,10 +140,14 @@ class AppSettingsConfigScope internal constructor() {
     internal val whatsNew = WhatsNewConfig()
     internal val topBar = TopBarConfig()
 
-    fun appearance(block: AppearanceConfig.() -> Unit) = appearance.block()
-    fun about(block: AboutConfig.() -> Unit) = about.block()
-    fun whatsNew(block: WhatsNewConfig.() -> Unit) = whatsNew.block()
-    fun topBar(block: TopBarConfig.() -> Unit) = topBar.block()
+    @Composable
+    fun appearance(block: @Composable AppearanceConfig.() -> Unit) = appearance.block()
+    @Composable
+    fun about(block: @Composable AboutConfig.() -> Unit) = about.block()
+    @Composable
+    fun whatsNew(block: @Composable WhatsNewConfig.() -> Unit) = whatsNew.block()
+    @Composable
+    fun topBar(block: @Composable TopBarConfig.() -> Unit) = topBar.block()
 }
 
 /** 外观。结构性选项（色源、预设、模式集合）只在第一次组合时生效。 */
