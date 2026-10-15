@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,9 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import wang.harlon.appsettings.appearance.label
-import wang.harlon.appsettings.icons.AppSettingsIcons
-import wang.harlon.appsettings.icons.Info
-import wang.harlon.appsettings.icons.Palette
 import wang.harlon.appsettings.resources.Res
 import wang.harlon.appsettings.resources.appsettings_about_title
 import wang.harlon.appsettings.resources.appsettings_appearance_title
@@ -75,7 +75,7 @@ fun SettingsScreen(
 fun SettingsGroupScope.appearanceItem(onClick: (() -> Unit)? = null) {
     val open = onClick ?: openPage?.let { opener -> { opener(SettingsPage.Appearance) } }
     settingsItem(
-        icon = AppSettingsIcons.Palette,
+        icon = Icons.Default.Palette,
         title = { Text(stringResource(Res.string.appsettings_appearance_title)) },
         trailing = {
             Text(
@@ -91,7 +91,7 @@ fun SettingsGroupScope.appearanceItem(onClick: (() -> Unit)? = null) {
 fun SettingsGroupScope.aboutItem(onClick: (() -> Unit)? = null) {
     val open = onClick ?: openPage?.let { opener -> { opener(SettingsPage.About) } }
     settingsItem(
-        icon = AppSettingsIcons.Info,
+        icon = Icons.Default.Info,
         title = { Text(stringResource(Res.string.appsettings_about_title)) },
         onClick = open,
     )

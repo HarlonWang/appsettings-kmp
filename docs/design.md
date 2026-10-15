@@ -53,7 +53,7 @@ appsettings-kmp/
 |---|---|
 | compose material3、foundation、runtime | 全部 |
 | compose components-resources | 库内中英文兜底文案 |
-| material-icons-core | 返回键一类的基础图标；**不依赖 extended**，用到的其余图标以 `ImageVector` 内联 |
+| material-icons-extended | 全部图标（2026-10-15 起；此前只依赖 core、其余内联，宿主都已依赖 extended，内联省不下任何体积） |
 | materialkolor | appearance 的 seed 取色、SPEC_2025 |
 | multiplatform-settings | 持久化 |
 | kotlinx-serialization-json | appearance 的 JSON 存储、whatsnew 解析 |
@@ -84,7 +84,7 @@ appsettings-kmp/
    事件记的是落定状态（例如权限被拒后的 false），不是用户意图。
 4. **页面由库给，导航归宿主。** 四个整页屏（设置页框架、外观、调色台、关于）自带 M3 壳；通用行 `appearanceItem()` / `aboutItem()` 可插进宿主任意组；
    二级页之间的跳转全部经回调（`onOpen` / `onOpenColorLab`）交给宿主路由。`*Content` 只是实现细节，不公开。
-5. **文案与图标：库内中英文只是兜底，图标全部内联。** 所有可见文字都可覆盖，标签类型是 `@Composable () -> String`，不是 `StringResource`。
+5. **文案：库内中英文只是兜底。** 所有可见文字都可覆盖，标签类型是 `@Composable () -> String`，不是 `StringResource`。
 6. **平台差异收在库内 expect/actual。** 系统深色、壁纸取色是否可用、activity-alias 切换与真实状态、iOS 备用图标、系统栏样式、打开系统应用设置。宿主 commonMain 不写平台分支。
 
 另外两条实现约束，来自 TrendingAI 的教训：
@@ -150,7 +150,7 @@ appsettings-kmp/
 
 `language` 发 `0.2.0`，增量，不动已有稳定契约。源实现在 TrendingAI：`data/local/SettingsManager.kt` 的 `AppLanguage`、`MainActivity` 的 `setApplicationLocales`、`SettingsScreen` 的语言行；搬完删掉。
 
-### 11.1 `language`：界面语言
+### 11.1 `language`：界面语言（已落地，0.2.0）
 
 **进库**：语言模型、存储、Android 的 per-app locale 应用、设置页一行、「跟随系统」解析、事件。
 **不进库**：可选语言清单（宿主的 compose resources 支持哪些语言只有宿主知道）、摘要语言这类业务语言。
@@ -180,9 +180,11 @@ language {
 
 测试归库：`resolved()` 的钳制与回落、清单外旧值视为跟随系统、`languages` 为空时行不显示。
 
+实现时的几处偏离与补充：行的下拉展开状态住在 trailing 里、整行 onClick 经一个转发器打开它（`settingsItem` 的 onClick 不是 Composable，无法 remember）；iOS 的 trailing 回显实际生效的语言而不是「去系统设置」文案，改法写在 description；Android 13+ 用户可在系统设置里改本 App 语言，库启动时以系统为准采纳（发 `Changed`）而不是反向覆盖；清单第一项约定为默认资源语言，`resolved()` 的回落才与平台实际渲染一致；iOS 在系统设置里改语言不发事件，`Changed` 记的是 App 内的选择。
+
 落地顺序：
 
-1. `language` 包 + 测试，`languageItem()`，Android appcompat 依赖与 Activity 校验，README 加「界面语言」一节（含 iOS 的 `CFBundleLocalizations`）；发 `0.2.0`。
+1. ~~`language` 包 + 测试，`languageItem()`，Android appcompat 依赖与 Activity 校验，README 加「界面语言」一节~~ 已完成，待发 `0.2.0`。
 2. TrendingAI 接 `language { }`，删 `AppLanguage` 枚举、`MainActivity` 的 locale collect、设置页语言行；`whatsNew.language` 一行去掉。
 3. 更新 `docs/api.md` 的稳定契约（`LanguageEvent` 子类集合、新 key）与 brain atlas 的能力描述。
 

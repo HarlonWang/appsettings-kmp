@@ -62,4 +62,7 @@
     <string name="appsettings_about_title">About</string>
     <string name="appsettings_general">General</string>
     <string name="appsettings_back">Back</string>
+    <string name="appsettings_language_title">App Language</string>
+    <string name="appsettings_language_follow_system">Follow system</string>
+    <string name="appsettings_language_open_system_settings">Change in system settings</string>
 </resources>

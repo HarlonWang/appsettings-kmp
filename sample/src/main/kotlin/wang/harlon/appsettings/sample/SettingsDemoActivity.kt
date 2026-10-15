@@ -1,10 +1,10 @@
 package wang.harlon.appsettings.sample
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
@@ -23,6 +23,7 @@ import wang.harlon.appsettings.ColorLabScreen
 import wang.harlon.appsettings.GeneralSettingsGroup
 import wang.harlon.appsettings.SettingsScreen
 import wang.harlon.appsettings.about.UpdateStatus
+import wang.harlon.appsettings.language.languageItem
 import wang.harlon.appsettings.rememberAppSettings
 import wang.harlon.appsettings.ui.SettingsGroup
 import wang.harlon.appsettings.ui.SettingsPage
@@ -32,8 +33,9 @@ private const val DEMO_WHATS_NEW = """{"version":"1.0.0","zh":["演示：升级�
 /**
  * 最小宿主：根上一个配置对象 + 一个 Root，设置页用库的框架摆几行，三个二级页直接用库的整页屏。
  * 导航用一个枚举状态代替，真实 App 换成自己的路由即可。
+ * 继承 AppCompatActivity 是界面语言（per-app locale）的要求。
  */
-class SettingsDemoActivity : ComponentActivity() {
+class SettingsDemoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -55,6 +57,8 @@ class SettingsDemoActivity : ComponentActivity() {
                     checkUpdates(status = { updateStatus }) { updateStatus = updateStatus.next() }
                 }
                 whatsNew { bundled = { DEMO_WHATS_NEW } }
+                // 界面语言：清单是宿主翻译了的语言；切换后 Activity 重建，库文案随之变化
+                language { languages = listOf("en", "zh") }
                 // 有自己顶栏风格的 App 改这一行即可：
                 // topBar { containerColor = { MaterialTheme.colorScheme.surfaceContainer } }
             }
@@ -96,6 +100,7 @@ private fun DemoNavigation(onExit: () -> Unit) {
                     onClick = { toggle = !toggle },
                 )
                 settingsItem(icon = Icons.Default.Settings, title = { Text("Disabled row") }, enabled = false, onClick = {})
+                languageItem()
             }
             GeneralSettingsGroup()
         }

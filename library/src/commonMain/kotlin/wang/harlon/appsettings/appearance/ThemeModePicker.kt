@@ -11,6 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BrightnessAuto
+import androidx.compose.material.icons.filled.Contrast
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -24,11 +29,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import wang.harlon.appsettings.icons.AppSettingsIcons
-import wang.harlon.appsettings.icons.BrightnessAuto
-import wang.harlon.appsettings.icons.Contrast
-import wang.harlon.appsettings.icons.DarkMode
-import wang.harlon.appsettings.icons.LightMode
 
 /**
  * 深浅模式选择：2×2 卡片而非扁扁的分段按钮。
@@ -90,8 +90,8 @@ private fun ThemeModeCard(
 }
 
 internal fun ThemeMode.icon(): ImageVector = when (this) {
-    ThemeMode.FollowSystem -> AppSettingsIcons.BrightnessAuto
-    ThemeMode.Light -> AppSettingsIcons.LightMode
-    ThemeMode.Dark -> AppSettingsIcons.DarkMode
-    ThemeMode.Amoled -> AppSettingsIcons.Contrast
+    ThemeMode.FollowSystem -> Icons.Default.BrightnessAuto
+    ThemeMode.Light -> Icons.Default.LightMode
+    ThemeMode.Dark -> Icons.Default.DarkMode
+    ThemeMode.Amoled -> Icons.Default.Contrast
 }

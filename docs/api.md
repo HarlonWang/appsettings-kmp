@@ -15,6 +15,7 @@ package wang.harlon.appsettings
 
 class AppSettings {
     val appearance: AppearanceInfo       // mode: ThemeMode；@Composable isDark()
+    val language: LanguageInfo           // current: AppLanguage；resolved(): String——跟随系统时钳到清单
 }
 
 class AppSettingsConfigScope {
@@ -24,6 +25,7 @@ class AppSettingsConfigScope {
     fun appearance(block: AppearanceConfig.() -> Unit)
     fun about(block: AboutConfig.() -> Unit)
     fun whatsNew(block: WhatsNewConfig.() -> Unit)
+    fun language(block: LanguageConfig.() -> Unit)
     fun topBar(block: TopBarConfig.() -> Unit)
 }
 
@@ -39,6 +41,7 @@ class AboutConfig {
     var onLinkClick: ((AboutLink) -> Unit)?     // 不给用系统浏览器
     fun checkUpdates(status: @Composable () -> UpdateStatus, onClick: () -> Unit)
 }
+class LanguageConfig { var languages: List<String>; var label: (@Composable (tag: String) -> String)? }   // 给了 languages 才启用
 class WhatsNewConfig { var bundled: (suspend () -> String?)?; var language: (() -> String)?; var enabled: (@Composable () -> Boolean)?  /* false 时本次不弹，如强更门亮着 */ }
 class TopBarConfig { var containerColor: (@Composable () -> Color)? }
 ```
@@ -103,25 +106,22 @@ interface AppSettingsEvent   // 根是普通接口（sealed 子类须同包）�
 
 - 存储：`appsettings.<包名>.` 命名空间、各 JSON 的 `schemaVersion` 与字段名
 - `ThemeMode` 名称、内置预设 `id`
-- `AboutLink`、`AppSettingsEvent` 子类集合（新增不算破坏）
+- `AboutLink`、`AppSettingsEvent` 子类集合（含 `LanguageEvent`；新增不算破坏）
+- `appsettings.language.tag` 的取值（`"system"` 与 BCP 47 标签）
 - `SettingsPage` 取值
 
-## v1.x（未实现，签名草案）
-
-设计与取舍见 [design.md](design.md) 第 11 节。只排 `language`；`update`（强更门）按需，形状记在 design.md 11.2。
+## language
 
 ```kotlin
-class AppSettingsConfigScope { fun language(block: LanguageConfig.() -> Unit) }
-class AppSettings { val language: LanguageInfo }   // current: AppLanguage；resolved(): String
+package wang.harlon.appsettings.language
 
-// language：界面语言。给了 languages 才启用；Android 走 AppCompatDelegate.setApplicationLocales，iOS 行点按跳系统设置
-class LanguageConfig {
-    var languages: List<String>                     // BCP 47 tag，顺序即菜单顺序；「跟随系统」固定第一
-    var label: (@Composable (tag: String) -> String)?   // 默认该语言自己的显示名
-}
-data class AppLanguage(val tag: String?)            // null 为跟随系统
-fun SettingsGroupScope.languageItem()                // 同 appearanceItem：Android 行内下拉选择，iOS 点按跳系统设置
+data class AppLanguage(val tag: String?) { val isSystem; companion object { val System } }   // BCP 47 标签，null 为跟随系统
+fun SettingsGroupScope.languageItem()      // Android 整行点按展开下拉；iOS 点按跳系统设置、trailing 回显生效语言
 sealed interface LanguageEvent : AppSettingsEvent { Changed(tag: String?) }
 ```
 
-存储：`appsettings.language.tag`，单值 string，`"system"` 为跟随系统。
+存储：`appsettings.language.tag`，单值 string，`"system"` 为跟随系统。清单外的值读出来当作跟随系统。
+
+## 按需：`update`（强更门）
+
+不排期，形状记在 [design.md](design.md) 11.2。

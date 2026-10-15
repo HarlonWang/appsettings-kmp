@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,8 +21,6 @@ import wang.harlon.appsettings.about.AboutGroupScope
 import wang.harlon.appsettings.appearance.AppearanceContent
 import wang.harlon.appsettings.appearance.ColorLabContent
 import wang.harlon.appsettings.appearance.rememberColorLabSession
-import wang.harlon.appsettings.icons.AppSettingsIcons
-import wang.harlon.appsettings.icons.Undo
 import wang.harlon.appsettings.resources.Res
 import wang.harlon.appsettings.resources.appsettings_about_title
 import wang.harlon.appsettings.resources.appsettings_appearance_title
@@ -57,7 +56,7 @@ fun ColorLabScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         modifier = modifier,
         actions = {
             IconButton(onClick = session::undo, enabled = session.isDirty) {
-                Icon(AppSettingsIcons.Undo, contentDescription = stringResource(Res.string.appsettings_color_lab_discard))
+                Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = stringResource(Res.string.appsettings_color_lab_discard))
             }
         },
     ) { padding ->
