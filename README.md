@@ -154,10 +154,6 @@ topBar { containerColor = { MaterialTheme.colorScheme.surfaceContainer } }
 
 `SettingsGroup { settingsItem(…) }` is the same card group the library's common rows use; `InfoDialog`, `SettingsBottomSheet` and `SettingsDropdownMenu` are public too.
 
-## Not in this library
-
-Accounts, subscriptions, feedback, notifications, navigation, analytics transport, where `minVersion` comes from, how update checks work. The rule: anything that needs to know what the app sells, who it signs in, or which backend it talks to stays out.
-
 ## Building
 
 - Consuming the library from local source: add `appsettings-kmp.dir=<path>` to the app's `local.properties` (the app needs the composite build from `gradle/composite-substitutions`). CI always resolves the Maven coordinate — **a library change must be released and bumped**.

@@ -154,10 +154,6 @@ topBar { containerColor = { MaterialTheme.colorScheme.surfaceContainer } }
 
 `SettingsGroup { settingsItem(…) }` 就是库里通用行用的那套卡片，直接用；`InfoDialog`、`SettingsBottomSheet`、`SettingsDropdownMenu` 同样公开。
 
-## 不在库里的东西
-
-账户、订阅、反馈、通知、导航、埋点上报、`minVersion` 从哪来、更新检查怎么做。判断标准：需要知道「这个 App 卖什么、登什么、连哪个服务端」的，都不在。
-
 ## 构建
 
 - App 吃本地源码：在 App 的 `local.properties` 加 `appsettings-kmp.dir=<路径>`（App 需支持 `gradle/composite-substitutions` 的 composite build）。CI 一律走 Maven 坐标，**改了库必须发版并 bump**。
