@@ -114,7 +114,7 @@ language { languages = listOf("en", "zh") }      // 宿主翻译了哪些语言�
 SettingsGroup(title = "通用") { languageItem(); appearanceItem(); aboutItem() }
 ```
 
-行内「跟随系统 + 清单」下拉，选项默认显示该语言自己的名字（中文 / English），`label = { tag -> … }` 可覆盖。选择存 BCP 47 标签，清单外的旧值视为跟随系统。启用后更新说明的展示语言自动跟界面语言。宿主要读当前语言（拼外链的 locale 参数、给服务端的 Accept-Language）用 `appSettings.language.resolved()`：跟随系统时按主语言子标签钳到清单，系统语言不在清单里就取第一项——所以**第一项要和 `values/` / 开发语言一致**，这样它和平台实际渲染的回退语言才是同一个。
+行内「跟随系统 + 清单」下拉，选项默认显示该语言自己的名字（中文 / English），`label = { tag -> … }` 可覆盖。选择存 BCP 47 标签，清单外的旧值视为跟随系统。启用后更新说明的展示语言自动跟界面语言。宿主要读当前语言（拼外链的 locale 参数、给服务端的 Accept-Language）用 `appSettings.language.resolved()`；没有 Compose 上下文的地方（ViewModel、网络层）用自己的 Settings 读 `APP_LANGUAGE_STORAGE_KEY`，经 `AppLanguage.fromStorage(stored, languages).resolve(languages)` 得到同一个结果：跟随系统时按主语言子标签钳到清单，系统语言不在清单里就取第一项——所以**第一项要和 `values/` / 开发语言一致**，这样它和平台实际渲染的回退语言才是同一个。
 
 **Android**：库在 Root 里调 `AppCompatDelegate.setApplicationLocales`，宿主 Activity 必须继承 `AppCompatActivity`、主题用 `Theme.AppCompat.*` 或 `Theme.Material3.*` 系列（debug 包首次使用校验 Activity，不是就抛异常；主题不对 AppCompat 自己会在启动时抛）。API 33+ 由系统持久化，用户也可以在系统设置里改本 App 的语言，库启动时会采纳系统里的选择而不是反向覆盖；清单最好和 `locales_config.xml` 一致。要让 API 33 以下冷启动也直接是选定语言，在 manifest 加：
 

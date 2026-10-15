@@ -21,7 +21,7 @@ internal class LanguageState internal constructor(
     /** 平台把选择落到系统（Android 的 per-app locale）；由平台层在 Root 里挂上，iOS 为空操作。 */
     internal var platformApply: (AppLanguage) -> Unit = {}
 
-    var current: AppLanguage by mutableStateOf(languageFromStorage(settings.getStringOrNull(LANGUAGE_KEY), languages))
+    var current: AppLanguage by mutableStateOf(languageFromStorage(settings.getStringOrNull(APP_LANGUAGE_STORAGE_KEY), languages))
         private set
 
     /** 实际生效的语言标签：跟随系统时取系统语言并钳到清单。 */
@@ -45,7 +45,7 @@ internal class LanguageState internal constructor(
 
     private fun commit(language: AppLanguage): Boolean {
         if (language == current) return false
-        settings.putString(LANGUAGE_KEY, language.tag ?: SYSTEM_TAG)
+        settings.putString(APP_LANGUAGE_STORAGE_KEY, language.tag ?: SYSTEM_TAG)
         current = language
         onEvent(LanguageEvent.Changed(language.tag))
         return true

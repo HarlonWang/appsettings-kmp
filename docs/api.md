@@ -115,12 +115,17 @@ interface AppSettingsEvent   // 根是普通接口（sealed 子类须同包）�
 ```kotlin
 package wang.harlon.appsettings.language
 
-data class AppLanguage(val tag: String?) { val isSystem; companion object { val System } }   // BCP 47 标签，null 为跟随系统
+data class AppLanguage(val tag: String?) {                     // BCP 47 标签，null 为跟随系统
+    val isSystem; fun resolve(languages: List<String>): String   // 非 Compose 场景算生效语言
+    companion object { val System; fun fromStorage(stored: String?, languages: List<String>): AppLanguage }
+}
+const val APP_LANGUAGE_STORAGE_KEY = "appsettings.language.tag"   // 宿主用自己的 Settings 读同一个 key（Flow 等）时配合 fromStorage
 fun SettingsGroupScope.languageItem()      // Android 整行点按展开下拉；iOS 点按跳系统设置、trailing 回显生效语言
 sealed interface LanguageEvent : AppSettingsEvent { Changed(tag: String?) }
 ```
 
-存储：`appsettings.language.tag`，单值 string，`"system"` 为跟随系统。清单外的值读出来当作跟随系统。
+存储：`APP_LANGUAGE_STORAGE_KEY`（`appsettings.language.tag`），单值 string，`"system"` 为跟随系统。清单外的值读出来当作跟随系统。
+宿主的 ViewModel / 网络层要响应式地跟语言：`settings.getStringOrNullFlow(APP_LANGUAGE_STORAGE_KEY).map { AppLanguage.fromStorage(it, languages).resolve(languages) }`。
 
 ## 按需：`update`（强更门）
 
