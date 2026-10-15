@@ -3,6 +3,7 @@ package wang.harlon.appsettings.language
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.pm.ApplicationInfo
+import android.os.Build
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -21,10 +22,10 @@ internal actual val platformSupportsInAppLanguage: Boolean = true
 
 /**
  * 用户在行里选 → [LanguageState.platformApply] 调 `setApplicationLocales`，Activity 重建。
- * 启动时对齐一次：
- * - 系统里还没有 per-app locale 而存储有选择（API 33 以下、没配 autoStoreLocales 的冷启动）→ 应用存储的；
- * - 系统里已有且与存储一致 → 不动；
- * - 系统里已有但与存储不同（API 33+ 用户在系统设置里改过本 App 的语言）→ 采纳系统的，不反向覆盖。
+ * 启动时对齐一次。API 33+ 的 per-app locale 由系统持久化，系统里的值就是真相：
+ * - 与存储一致 → 不动；
+ * - 不同（用户在系统设置里改过本 App 的语言，含改回「跟随系统」后的空）→ 采纳系统的，不反向覆盖。
+ * API 33 以下没有系统持久化，空只表示本进程还没应用过（没配 autoStoreLocales 的冷启动）→ 回放存储的选择。
  */
 @Composable
 internal actual fun PlatformLanguageEffect(state: LanguageState) {
@@ -34,9 +35,11 @@ internal actual fun PlatformLanguageEffect(state: LanguageState) {
     LaunchedEffect(state) {
         val effective = AppCompatDelegate.getApplicationLocales().toLanguageTags().substringBefore(',').takeIf { it.isNotEmpty() }
         val stored = state.current.tag
+        val systemOwned = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
         when {
-            effective == null -> if (stored != null) applyLocales(state.current)
-            stored != null && matchLanguage(effective, state.languages) == stored -> Unit
+            effective == null && !systemOwned -> if (stored != null) applyLocales(state.current)
+            effective == null -> state.adopt(null)
+            matchLanguage(effective, state.languages) == stored -> Unit
             else -> state.adopt(effective)
         }
     }

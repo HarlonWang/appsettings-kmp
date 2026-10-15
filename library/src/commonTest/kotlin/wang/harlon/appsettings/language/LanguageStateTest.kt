@@ -84,6 +84,17 @@ class LanguageStateReconcileTest {
     }
 
     @Test
+    fun adopt_null_returns_to_system() {
+        val settings = MapSettings().apply { putString(LANGUAGE_KEY, "zh") }
+        val events = mutableListOf<LanguageEvent>()
+        val s = LanguageState(settings, languages) { "en" }.also { it.onEvent = events::add }
+        s.adopt(null)
+        assertEquals(AppLanguage.System, s.current)
+        assertEquals(SYSTEM_TAG, settings.getStringOrNull(LANGUAGE_KEY))
+        assertEquals<List<LanguageEvent>>(listOf(LanguageEvent.Changed(null)), events)
+    }
+
+    @Test
     fun adopt_outside_list_is_ignored() {
         val s = LanguageState(MapSettings(), languages) { "en" }
         s.adopt("ja-JP")

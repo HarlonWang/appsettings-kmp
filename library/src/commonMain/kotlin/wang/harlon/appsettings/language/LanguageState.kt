@@ -36,11 +36,11 @@ internal class LanguageState internal constructor(
 
     /**
      * 平台发现系统里已经是另一种语言（Android 13+ 用户在系统设置里改过本 App 的语言）：以系统为准更新状态，不再反向应用。
-     * [tag] 清单外时什么都不做，留着系统的选择。
+     * [tag] 为 null 即系统里改回了「跟随系统」；清单外的标签什么都不做，留着系统的选择。
      */
-    internal fun adopt(tag: String) {
-        val matched = matchLanguage(tag, languages) ?: return
-        commit(AppLanguage(matched))
+    internal fun adopt(tag: String?) {
+        val language = tag?.let { matchLanguage(it, languages) ?: return }?.let(::AppLanguage) ?: AppLanguage.System
+        commit(language)
     }
 
     private fun commit(language: AppLanguage): Boolean {
