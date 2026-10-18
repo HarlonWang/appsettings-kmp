@@ -4,7 +4,7 @@ agp = "9.4.1"
 android-compileSdk = "37"
 android-minSdk = "24"
 android-targetSdk = "37"
-kotlin = "2.4.20"
+kotlin = "2.4.21"
 composeMultiplatform = "1.12.1"
 # 独立版本线，不跟 composeMultiplatform 走（该坐标只发 alpha）。必须与 CMP 同代：
 # 落后会在渲染 TextField 时 AbstractMethodError，而编译/单测全绿，只在真机炸
